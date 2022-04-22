@@ -1,0 +1,560 @@
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: 202X.XX.XX
+  Info:
+    - Mod rewritten (again) and split into 4 modules (including RFW): Realistic Fusion - Core (RFC), Realistic Fusion - Power (RFP), Realistic Fusion - Antimatter (RFA) and Realistic Fusion - Weaponry (RFW).
+    - All Realistic Fusion modules require RFC, but can be used independently of each other (it is recommended to use them together though).
+    - Because so much stuff changed, none of the RFP 1.0 compatibilities (AngelBobs, K2, etc.) are in 2.0 at the moment. I plan to re-make all of them for 2.0 eventually, but I can't say how long it'll take.
+    - All of the calculations and sources for how I came up with all of the values used in the mod are in RFC's _sources_.txt file if you unzip the mod file.
+    - Now onto the actual changes specific to RFP (changes to the antimatter portion of the old mod are listed in RFA's changelog).
+  Major Features:
+---------------------------------------------------------------------------------------------------
+Version: 1.8.9
+Date: 2022.01.10
+  Bugfixes:
+    - Fixed some more script stuff including some desyncs, maybe.
+  Locale:
+    - D-He3 fusion efficiency 5 effect had a typo, 11.1GW instead of 11.8GW.
+    - I deeply apologize for making the mod literally unplayable and have corrected the mistake now.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.8
+Date: 2022.01.08
+  Bugfixes:
+    - Fixed a desync, probably, again.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.7
+Date: 2022.01.07
+  Bugfixes:
+    - Fixed a desync, probably.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.6
+Date: 2022.01.06
+  Scripting:
+    - Improved the runtime performance of the mod by over 10 times.
+    - Yeah, I guess having actual programming experience is kinda useful isn't it?
+---------------------------------------------------------------------------------------------------
+Version: 1.8.5
+Date: 2021.12.27
+  Bugfixes:
+    - Fixed a few issues with the antimatter science pack/tech card with K2/SE.
+  Minor Features:
+    - Added compatibility for mods.factorio.com/mod/spidertron-extended-se
+  Sounds:
+    - Improved the sound of the reactor, credit to mods.factorio.com/user/OvermindDL1.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.4
+Date: 2021.12.20
+  Bugfixes:
+    - Fixed crashing on linux with Booktorio.
+  Locale:
+    - Added chinese translation, credit to mods.factorio.com/user/NicoFoxy.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.3
+Date: 2021.9.26
+  Bugfixes:
+    - Fixed desyncs, hopefully, again.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.2
+Date: 2021.9.21
+  Bugfixes:
+    - K2: Removed thermonuclear, fusion and antimatter fuel. For some reason K2 doesn't remove or hide the nuclear fuel recipe; it just prevents it from being unlocked by any tech, which the code added in 1.6.4 can't detect automatically.
+    - K2: Fixed D-He3 plasma cells being unresearchable.
+  Locale:
+    - Added spanish translation, credit to cr4pfact0ry#9160 on discord.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.1
+Date: 2021.9.14
+  Minor Features:
+    - K2: Added a setting to add a recipe to make K2's tritium if the replace setting is turned on.
+---------------------------------------------------------------------------------------------------
+Version: 1.8.0
+Date: 2021.9.3
+  Graphics:
+    - PreLeyZero made completely new antimatter reactor graphics, and in turn doubled the mod size.
+  Sounds:
+    - Antimatter reactor sounds. Made with audacity, a free explosion SFX and an hour of my time.
+  Minor Features:
+    - Antimatter reactor size changed to 20x18. In existing saves, it should be dropped on the ground where it was before the update.
+    - K2: Electric boiler renamed to advanced electric boiler to not have 2 entities of the same name.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.6
+Date: 2021.8.23
+  Bugfixes:
+    - Fixed crashing when RFP is added to a new save.
+    - Fixed pipes that were placed before RFP was added not exploding when they should.
+    - Hopefully didn't introduce more desyncs. Hopefully.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.5
+Date: 2021.8.22
+  Minor Features:
+    - Errors in control.lua no longer crash the game, instead only show a warning in chat.
+    - Added a mod setting to change how much (if any) hydrogen sulfide is used by the GS process.
+  Bugfixes:
+    - Antimatter explodes if piped through non-magnetic pipes with Combat Overhaul instead of just showing some weird orange lines.
+    - Fixed the minor feature added in 1.7.2 because I'm dumb and forgot to actually test if it works.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.4
+Date: 2021.8.21
+  Bugfixes:
+    - Fixed desyncs (maybe).
+---------------------------------------------------------------------------------------------------
+Version: 1.7.3
+Date: 2021.8.20
+  Bugfixes:
+    - Fixed some crashes related to 1.7.2.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.2
+Date: 2021.8.20
+  Bugfixes:
+    - Migrations on save load work again.
+  Minor Features:
+    - Made use of Factorio 1.1.9's forced_value, see settings.lua for more info.
+    - If you don't know what the hell settings.lua is, you can probably ignore this.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.1
+Date: 2021.8.4
+  Bugfixes:
+    - Moved the DDW recycling to data-final-fixes, should hopefully fix some crashes.
+---------------------------------------------------------------------------------------------------
+Version: 1.7.0
+Date: 2021.8.3
+  Major Features:
+    - Industrial Revolution 2 compatibility.
+  Bugfixes:
+    - Fixed crashes with the DDW recycling setting enabled and advanced deuterium extraction disabled.
+    - Bob's power: Fixed a crash without other Bob's mods installed, and possibly also prevented other crashes.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.7
+Date: 2021.7.28
+  Features:
+    - Added a setting to replace Bob's deuterium power.
+  Bugfixes:
+    - SE: Fixed the electric boiler not being placeable in space.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.6
+Date: 2021.7.26
+  Bugfixes:
+    - SE/K2: Fixed the portable fuel cells' tech requirements. Side effect of this is that they no longer have the fusion reactor itself as a prerequisite, because SE's postprocess changes the science packs they need otherwise.
+    - SE/K2: Fixed matter-antimatter fuel cell's recipes.
+    - Fixed a typo.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.5
+Date: 2021.7.25
+  Bugfixes:
+    - Fixed a crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.4
+Date: 2021.7.24
+  Features:
+    - Added a setting to make DDW usable in recipes that use regular water (should work with any mod)
+    - Added a "replace SE antimatter with RFP" mod setting.
+  Minor Features:
+    - Thermonuclear, fusion and antimatter fuel is now added only if nuclear fuel isn't removed by some other mod.
+    - K2: Added support for Spidertron Extended.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.3
+Date: 2021.7.12
+  Features:
+    - Added thermonuclear, fusion and antimatter fuel. Go nuts.
+    - And yes, it's not exactly 'realistic', but neither is the vanilla nuclear fuel ¯\_(ツ)_/¯
+  Bugfixes:
+    - Removed the "non-stackable" flag from all items.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.2
+Date: 2021.7.11
+  Features:
+    - SE: D-D fusion is now unlockable before rocket science.
+    - SE: Everything that comes after D-D also made available earlier on.
+    - SE: Also changed recipes of some stuff to accommodate the lower tech.
+  Bugfixes:
+    - SE: Fixed deep space science 4 being a requirement for D-D efficiency 1.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.1
+Date: 2021.7.9
+  Bugfixes:
+    - Fixed crash with K2 - Additional Locomotives and replace K2 mod setting disabled.
+---------------------------------------------------------------------------------------------------
+Version: 1.6.0
+Date: 2021.7.9
+  Major Features:
+    - SE compatibility. Not fully integrated yet, so far only the RFP tech requirements and recipes have been changed to be usable with SE.
+    - SE+K2 is also supported.
+    - Full integration coming in the future, and it hopefully won't take as long as this update did...
+  Features:
+    - Added compatibility for K2 - Additional Locomotives.
+  Bugfixes:
+    - Fixed crash when Flow Control's new subgroup for pipe items setting was disabled.
+    - Fixed recipes for Krastorio's antimatter weapons if RFW wasn't loaded.
+    - Fixed Krastorio's portable reactors using the wrong fuel if the K2 integration is enabled and AAI Industry is installed.
+    - Fixed tritium-suppressed D-D fusion efficiency being researchable without researching tritium breeding first and D-T mixing unlocking by the wrong tech.
+    - Added a dot to the end of the magnetic containment pump's description. Mod was literally unplayable because of this.
+    - Also fixed some other stuff in the locale.
+  Info:
+    - Sorry for taking so long to finish this, I only started actually working on the SE patch after school ended (1st July), one of the reasons being entrance exams (which I passed by the way, yay), the other being lack of motivation.
+    - Now that the basic compatibility is done, I'll add an option to integrate RFP into SE (replacing its antimatter power) and then start adding some new features to both RFP and RFW, or even make a completely new addon.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.3
+Date: 2021.1.12
+  Bugfixes:
+    - Added compatibility for 5dim's MK10 lab.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.2
+Date: 2021.1.12
+  Features:
+    - Added compatibility for 5dim's labs.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.1
+Date: 2021.1.10
+  Changes:
+    - Removed manual recipes option and made it the default. Fixes some bugs.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.0
+Date: 2021.1.9
+  Major Features:
+    - Bob's/Angelbob's integration. Doesn't touch their fusion power.
+  Bugfixes:
+    - Fixed GJ being outputted from the reactor's bottom pipes without T or He3 breeding.
+    - Fixed manual recipes not showing power output properly in the GUI.
+    - Fixed incompatibilities with some mods.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.1
+Date: 2020.12.27
+  Bugfixes:
+    - Fixed a crash with antimatter disabled and Krastorio 2 installed.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.0
+Date: 2020.12.18
+  Major Features:
+    - Angel's mods integration. Doesn't touch angel's fusion power. No Bob's yet, but it'll be added in the future.
+  Features:
+    - Manual recipes option now applies to the heater too.
+  Graphics:
+    - Recolored antimatter reactor to fit with the rest of the antimatter stuff.
+  Bugfixes:
+    - Fixed pipes not exploding when plasma/antimatter is in them. This was a bug since 1.3 apparently, noticed it just now.
+  Info:
+    - Took so long because I started working on it a month or 2 later than I should've, Bob's should be done quicker.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.15
+Date: 2020.12.6
+  Bugfixes:
+    - Fixed the antimatter reactor's hitbox being rotatable without the texture rotating.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.14
+Date: 2020.12.6
+  Graphics:
+    - Fixed antimatter reactor's shade disappearing when running.
+    - Fixed some shadows being more transparent than they should be.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.13
+Date: 2020.12.6
+  Graphics:
+    - New antimatter reactor graphics, courtesy of PreLeyZero.
+  Bugfixes:
+    - Fixed some tech icons not displaying properly.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.12
+Date: 2020.12.2
+  Bugfixes:
+    - Fixed a crash with Krastorio 2 1.0.12
+---------------------------------------------------------------------------------------------------
+Version: 1.3.11
+Date: 2020.11.23
+  Changes:
+    - Updated to Factorio 1.1.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.10
+Date: 2020.11.10
+  Bugfixes:
+    - Fixed D-He3 eff. 7 requiring 10x less science than it should.
+    - Fixed particle deceleration eff. 1 not requiring antimatter science.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.9
+Date: 2020.11.2
+  Features:
+    - Booktorio support. https://mods.factorio.com/mod/Booktorio
+  Bugfixes:
+    - Fixed compatibility patches not changing fluids and categories properly if using the method added in 1.3.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.8
+Date: 2020.11.1
+  Bugfixes:
+    - Fixed a crash with DSR
+---------------------------------------------------------------------------------------------------
+Version: 1.3.7
+Date: 2020.10.28
+  Bugfixes:
+    - Fixed Krastorio 2's spidertron fuel being uncraftable.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.6
+Date: 2020.10.26
+  Bugfixes:
+    - Fixed deuterium being uncraftable with angel's petrochem.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.5
+Date: 2020.10.25
+  Major Features:
+    - Halved default science cost.
+    - Added an option to replace Krastorio's fusion/antimattter power. I recommend also turning down the science multiplier if you're going to use this.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.4
+Date: 2020.10.14
+  Bugfixes:
+    - Fixed another crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.3
+Date: 2020.10.10
+  Bugfixes:
+    - Fixed another crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.2
+Date: 2020.10.10
+  Minor Features:
+    - Uses Hydrogen Power Systems hydrogen instead of the RFP one if it's installed.
+  Bugfixes:
+    - Fixed hydrogen being uncraftable if neither Krastorio nor Angel's petrochem is installed.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.1
+Date: 2020.10.9
+  Bugfixes:
+    - Fixed a crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.0
+Date: 2020.10.9
+  Major Features:
+    - Krastorio 2 integration. Not complete yet, so far only the science and recipes were changed.
+  Minor Features:
+    - Added mod setting to manually choose fusion recipes.
+    - Support for compatibility patches changing one of the fluids RFP uses (see settings.lua for more info).
+  Bugfixes:
+    - Fixed infinite hydrogen sulfide using productivity modules with the GS process.
+  Locale:
+    - Fixed a few typos.
+    - Made full translation possible (no more hard-coded locale to eng).
+    - Rich text is dynamic now. For example, if angel's petrochem is installed then angel's hydrogen sulfide gas icon will be used instead of the RFP one in text.
+    - Works with (future) compatibility patches if the patch maker uses the correct way to change the fluids RFP uses (see settings.lua).
+  Other:
+    - Primary license changed from CC BY-NC-SA 4.0 to CC BY-SA 4.0 [see legal-note.txt for more about licensing].
+---------------------------------------------------------------------------------------------------
+Version: 1.2.9
+Date: 2020.9.30
+  Bugfixes:
+    - Fixed incompatibility with Steam Cooling.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.8
+Date: 2020.9.19
+  Locale:
+    - Added descriptions to the Flow Control pipes.
+    - Added rich text. https://wiki.factorio.com/Rich_text
+---------------------------------------------------------------------------------------------------
+Version: 1.2.7
+Date: 2020.9.18
+  Bugfixes:
+    - Fixed an incompatibility.
+  Locale:
+    - Added locale for Flow Control pipes.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.6
+Date: 2020.9.14
+  Features:
+    - Added support for Flow Control.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.5
+Date: 2020.9.13
+  Bugfixes:
+    - Fixed incompatibilites with some mods.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.4
+Date: 2020.9.11
+  Features:
+    - Hydrogen sulfide has a separate recipe.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.3
+Date: 2020.9.8
+  Bugfixes:
+    - Fixed antimatter science pack being not possible to insert into labs.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.2
+Date: 2020.9.8
+  Bugfixes:
+    - Fixed antimatter science pack being uncraftable.
+  Locale:
+    - Fixed a typo.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.1
+Date: 2020.9.7
+  Locale:
+    - Fixed antimatter science pack having no name defined.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.0
+Date: 2020.9.5
+  Major Features:
+    - Antimatter power. Currently beta, can be disabled in mod settings.
+    - Some of the textures are modified from Krastorio 2 and licensed under GNU GPL v3. Others are modified from angel's discarded/unused thread.
+    - I know I said I'll add cold fusion (not antimatter power), but the difference in power output wasn't big enough between normal and cold fusion to make it worth it. I'll might still add it in the future though.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 2020.8.28
+  Balancing:
+    - Removed pre-aneutronic portable fusion reactor, because you can't really carry a heat exchanger and a turbine in your backpack.
+    - Lowered energy capacity of each plasma cell.
+  Info:
+    - This update doesn't change anything if you don't have RTG installed.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2020.8.26
+  Features:
+    - Added a portable fusion reactor if RTG is installed. Uses fuel cells.
+  Info:
+    - This update doesn't change anything if you don't have RTG installed.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2020.8.24
+  Major Features:
+    - Advanced (realistic) deuterium extraction. If you don't like it, there's a setting to use the old method.
+    - Electric boiler from angel's petrochem is added if it isn't active. Textures and code for it are licensed under CC BY-NC-ND 4.0.
+  Minor Features:
+    - Added a setting to customize priority of HC turbines.
+    - Efficiency techs now have a modifier with info.
+    - Gases have colors to be distinguishable again.
+  Bugfixes:
+    - Tritium breeding produces 5.5/s instead of 10/s (as it should)
+---------------------------------------------------------------------------------------------------
+Version: 1.0.10
+Date: 2020.8.22
+  Bugfixes:
+    - Fixed incompatibility with Advanced Electric
+---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 2020.8.21
+  Bugfixes:
+    - I accidentally left in a thing that printed something anytime something was built from when I was debugging. Oops.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.8
+Date: 2020.8.21
+  Optimizations:
+    - More pipes can now be processed per tick without using more UPS.
+    - The mod uses less UPS generally (not like it used a lot before anyways)
+  Bugfixes:
+    - Fixed another crash
+---------------------------------------------------------------------------------------------------
+Version: 1.0.7
+Date: 2020.8.21
+  Bugfixes:
+    - Fixed a crash
+---------------------------------------------------------------------------------------------------
+Version: 1.0.6
+Date: 2020.8.20
+  Bugfixes:
+    - Science multiplier was using an int instead of a double. That means any value smaller than 0.5 (like 0.1) would get rounded down to 0. This caused a crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 2020.8.20
+  Bugfixes:
+    - Sometimes putting plasma into normal pipes would cause a crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+Date: 2020.8.20
+  Minor Features:
+    - Tritium decay to helium-3. Usually this takes 12.5 years, but with the power of Science (TM), you managed to shorten it to just a minute. (intended for when you want to produce a lot of he3 for RFW weapons and don't need tritium, toggleable through setting).
+  Balancing:
+    - D-D fusion now produces half as much tritium and helium-3 than before (because somewhat realism).
+    - Tritium suppressed fusion now produces as much as D+He3 suppressed produced before, and D+He3 suppressed produces 100MW less regardless of efficiency. (intended for when you want to breed he3 for RFW weapons and don't need more energy).
+  Bugfixes:
+    - Science multiplier now has an upper cap of 6000x to prevent another integer overflow.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 2020.8.19
+  Minor Features:
+    - Deuterium extractors were producing so little deuterium that they sometimes bugged out and produced none.
+    - This was fixed by making every pre-1.0.3 unit worth 10 post 1.0.3 units, that way each dex produces 0.5/s instead of 0.05/s.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 2020.8.19
+  Bugfixes:
+    - Cold fusion science requirement was too big and caused an integer overflow (only on some systems, apparently)
+---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2020.8.19
+  Graphics:
+    - Deuterium, tritium, helium-3, the mixtures and the plasmas no longer have any color and look like gases.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2020.8.18
+  Info:
+    - The mod has been completely rewritten. There are almost no similarities to the previous versions except some of the textures.
+    - There are too many changes to list in this changelog, so I recommend checking the mod page and/or trying it yourself in sandbox.
+    - Mod left the WIP/Proof of concept stage. (that's why it's 1.0 instead of 0.3)
+---------------------------------------------------------------------------------------------------
+Version: 0.2.6
+Date: 2020.5.3
+  Bugfixes:
+    - Fixed a game crash
+---------------------------------------------------------------------------------------------------
+Version: 0.2.5
+Date: 2020.4.18
+  Bugfixes:
+    - Updated tritium and deuterium locale (forgot to do so in the last update)
+---------------------------------------------------------------------------------------------------
+Version: 0.2.4
+Date: 2020.3.17
+  Bugfixes:
+    - Renamed deuterium and tritium to rf-deuterium and rf-tritium (rf=RealisticFusionPower) to fix an incompatibility with bob's/angel's.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.3
+Date: 2020.3.17
+  Bugfixes:
+    - Some small fixes
+---------------------------------------------------------------------------------------------------
+Version: 0.2.2
+Date: 2020.1.25
+  Other:
+    - Changed version to 0.18
+---------------------------------------------------------------------------------------------------
+Version: 0.2.1
+Date: 2020.1.19
+  Graphics:
+    - Unpowered isotope processor and deuterium processor graphics
+  Locale:
+    - Czech locale, credit to u/byJirka on reddit.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 2020.1.1
+  Graphics:
+    - Graphics! Credit to YuokiTani for re-rendering some unused textures with changed colors from https://u.nu/factoriogfx.
+  Bugfixes:
+    - Reactors can no longer run without power.
+    - No crash when removing reactor.
+  Minor Features:
+    - Deuterium extraction now has a 0.000000000000000001% chance of producing tritium. Good luck.
+  Optimizations:
+    - Most of the code was rewritten for better performance.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.3
+Date: 2019.12.20
+  Optimizations:
+    - Better performance
+---------------------------------------------------------------------------------------------------
+Version: 0.1.2
+Date: 2019.12.4
+  Bugfixes:
+    - Turbine was producing 1/2 of max power
+    - HC turbine and heat exchanger recipes were swapped
+  Balancing:
+    - Recipes use 8 turbines/exchangers instead of 4
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+Date: 2019.?.?
+  Info:
+    - Thumbnail
+    - Better description with pictures
+    - This changelog
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2019.?.?
+  Graphics:
+    - Placeholder
+  Info:
+    - First working version
+  Locale:
+    - English

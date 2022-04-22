@@ -1,0 +1,2 @@
+Any file in a subdirectory of this mod that doesn't have a license.txt and/or a legal-note.txt in its directory is licensed under CC BY-SA 4.0. Read individual legal-note.txt's for more about those.
+See license.txt in this directory for full license.

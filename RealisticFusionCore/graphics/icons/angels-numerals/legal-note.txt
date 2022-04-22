@@ -1,0 +1,2 @@
+All texturesin this directory are from angel's refining: https://mods.factorio.com/mod/angelsrefining
+Everything in this directory is licensed under CC BY-NC-ND 4.0, see license.txt for full license.

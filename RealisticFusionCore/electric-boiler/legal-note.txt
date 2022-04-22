@@ -1,0 +1,2 @@
+All textures and code in this directory are from angel's petrochem: https://mods.factorio.com/mod/angelspetrochem
+Everything in this directory is licensed under CC BY-NC-ND 4.0, see license.txt for full license.

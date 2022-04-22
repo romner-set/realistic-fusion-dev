@@ -1,0 +1,16 @@
+DONE:
+ Split the mods
+ RFC: Add lithium extraction
+ RFC: Improve deuterium extraction
+ RFC: Revamp tritium & helium production
+ RFP: Add ICF fusion (placeholder balance)
+ RFP: Finish tritium production
+WIP:
+ RFP: Revamp fusion
+TODO:
+ RFP/C: Revamp tech tree
+ RFP/C: Revamp balance
+ RFP/C: Revamp recipe balance
+ RFA: Implement new stuff
+ RFA: Revamp ?
+ RFW: Revamp ? - incl. resource destruction on impact setting

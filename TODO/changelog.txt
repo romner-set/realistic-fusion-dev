@@ -1,0 +1,219 @@
+---------------------------------------------------------------------------------------------------
+Version: 2.0.0
+Date: XXXX
+  Info:
+    - TODO
+---------------------------------------------------------------------------------------------------
+Version: 1.5.4
+Date: 2021.8.20
+  Bugfixes:
+    - Migrations on save load work again.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.3
+Date: 2021.8.3
+  Bugfixes:
+    - True Nukes: Fixed a crash with the big atomic bomb disabled in mod settings.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.2
+Date: 2021.8.3
+  Major Features:
+    - Industrial Revolution 2 compatibility.
+  Features:
+    - SE: Added support for the weapons delivery cannon.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.1
+Date: 2021.7.28
+  Features:
+    - RFP's 'Replace Bob's deuterium power' setting also replaces his plasma weaponry with RFW.
+---------------------------------------------------------------------------------------------------
+Version: 1.5.0
+Date: 2021.7.24
+  Major Features:
+    - True Nukes integration. You thought that the antimatter bomb was big in vanilla? Think again.
+  Graphics:
+    - Updated the thermonuclear, fusion and antimatter bomb technology textures.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.2
+Date: 2021.7.11
+  Bugfixes:
+    - SE: Fixed a crash.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.1
+Date: 2021.7.11
+  Features:
+    - SE: Changed recipes and tech requirements to match RFP 1.6.2.
+---------------------------------------------------------------------------------------------------
+Version: 1.4.0
+Date: 2021.7.9
+  Major Features:
+    - SE compatibility. Not fully integrated yet, so far only the RFP tech requirements and recipes have been changed to be usable with SE.
+    - Full integration coming in the future, and it hopefully won't take as long as this update did... (6 months! What the hell was I doing all that time?)
+    - SE+K2 is also supported.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.4
+Date: 2021.5.25
+  Bugfixes:
+    - Fixed uranium shotgun shell having the wrong recipe with bob's warfare installed.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.3
+Date: 2021.2.28
+  Bugfixes:
+    - Fixed things added in 1.3.1 being unlocked from the start.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.2
+Date: 2021.2.23
+  Bugfixes:
+    - Added Atomic Artillery to incompatibilities.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.1
+Date: 2021.2.21
+  Features:
+    - Bob's warfare integration.
+  Info:
+    - This update took me *way* longer than it should have, mostly because I don't have much time/motivation to work on my mods right now.
+    - I'll still fix bugs, but I'll take a break from adding new features for some time.
+---------------------------------------------------------------------------------------------------
+Version: 1.3.0
+Date: 2021.1.9
+  Major Features:
+    - Bobs/Angelbobs integration. No integration for Bob's Warfare yet, but it should be added soon(-ish).
+  Bugfixes:
+    - Forgot to name some things in the last update, that's fixed now.
+---------------------------------------------------------------------------------------------------
+Version: 1.2.0
+Date: 2020.12.18
+  Major Features:
+    - Angel's mods integration. No Bob's yet, but it'll be added in the future.
+    - Took so long because I started working on it a month or 2 later than I should've, Bob's should be done quicker.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.3
+Date: 2020.11.23
+  Bugfixes:
+    - Updated to Factorio 1.1.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 2020.10.27
+  Bugfixes:
+    - Fixed artillery shell and the antimatter anti-material rifle ammo having a damage radius twice as big as they should.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2020.10.26
+  Features:
+    - Added smoke FX to the artillery shell (forgot to do so in 1.1)
+    - Changed some scorchmarks
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2020.10.25
+  Major Features:
+    - Massively improved Krastorio 2 integration.
+    - Improved graphics for both vanilla and RFW explosions. (smoke effects as a "shockwave")
+  Features:
+    - Added uranium shotgun shell.
+    - Added handheld rocket launcher version of the antimatter bomb. Suicide is fun, i guess?
+  Balancing:
+    - Buffed small antimatter rocket.
+    - Buffed small fusion rocket significantly.
+    - Halved default research cost.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2020.10.7
+  Major Features:
+    - Krastorio 2 integration. Not complete yet, so far only the science and recipes were changed.
+  Locale:
+    - Fixed a few typos.
+  Other:
+    - Primary license changed from CC BY-NC-SA 4.0 to CC BY-SA 4.0.
+    - Mod left WIP stage. Doesn't mean updates will stop, nothing much except the version number changes.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.1
+Date: 2020.9.21
+  Bugfixes:
+    - Fixed the MIRV-like graphics not working.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.0
+Date: 2020.9.19
+  Graphics:
+    - New graphics. You can switch between 0.4 graphics, the MIRV-like ones and vanilla in mod settings.
+  Minor Features:
+    - "Realistic Plasma Throwers" mod option.
+  Locale:
+    - Added rich text. https://wiki.factorio.com/Rich_text
+---------------------------------------------------------------------------------------------------
+Version: 0.3.0
+Date: 2020.9.5
+  Major Features:
+    - Antimatter weaponry. VERY powerful. Currently beta, can be disabled along with antimatter power in RFP's mod settings.
+    - Fusion/antimatter bullets/shotgun shells explode on hits now. Makes shotguns actually useful.
+  Bugfixes:
+    - Fusion bullets now need D-He3 instead of D-T (as they should)
+  Graphics:
+    - Improved bomb explosions. 
+    - Default screen burn strength reduced significantly, but it lasts longer.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.4
+Date: 2020.8.27
+  Balancing:
+    - Doubled the deuterium/tritium/helium-3 cost of everything.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.3
+Date: 2020.8.27
+  Graphics:
+    - Reduced thermonuclear and pure fusion screen burn max distance.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.2
+Date: 2020.8.26
+  Bugfixes:
+    - Fixed thermonuclear bomb's old FX not displaying properly.
+  Minor Features:
+    - Settings to change strength of the screen burn.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.1
+Date: 2020.8.26
+  Bugfixes:
+    - New graphics no longer dependant on MIRV.
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 2020.8.26
+  Graphics:
+    - Fission, thermonuclear and fusion bombs now have FX that are somewhat a fusion of vanilla and MIRV's explosions.
+    - See for yourself. In my opinion they look much better than the old ones.
+    - If you like the old ones more, you can toggle them at a per-bomb basis.
+  Info:
+    - All changes also apply to the artillery shells.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.4
+Date: 2020.8.25
+  Optimizations:
+    - Big performance improvement for thermonuclear bombs, pure fusion bombs and small fusion rockets.
+  Graphics:
+    - Thermonuclear and pure fusion bombs have a better looking shockwave.
+  Info:
+    - All changes also applied to artillery shells and the cannon shell.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.3
+Date: 2020.8.23
+  Features:
+    - Fission, thermonuclear and pure fusion artillery shells. Explosions are exactly the same as their rocket counterparts. Have fun.
+  Balancing:
+    - Thermonuclear and pure fusion bombs made even stronger (not bigger explosion radius, just more damage dealt).
+---------------------------------------------------------------------------------------------------
+Version: 0.1.2
+Date: 2020.8.20
+  Balancing:
+    - All weapons made stronger to better fit the role of using them against end game modded enemies.
+  Graphics:
+    - Small fusion rocket no longer has a shockwave that is bigger than the damage radius.
+    - Thermonuclear and pure fusion bombs now have a proper shockwave.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+Date: 2020.8.19
+  Balancing:
+    - Recipes changed to match RFP 1.0.3's new unit scale
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 2020.8.19
+  Info:
+    - Initial release
+    - RFP's Science multipler setting applies to RFW's science cost too.
+  Locale:
+    - English

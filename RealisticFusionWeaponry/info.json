@@ -1,0 +1,11 @@
+{
+    "name": "RealisticFusionWeaponry",
+    "version": "2.0.0",
+    "title": "Realistic Fusion - Weaponry",
+    "author": "Romner_set",
+    "description": "Energy production isn't the only use of nuclear fusion—weapons of mass destruction are another use, for example.\nCan be used standalone, but has more features with other RF mods installed.",
+    "contact": "Mod portal or discord Romner#5341",
+    "homepage": "https://mods.factorio.com/mod/RealisticFusionWeaponry",
+    "factorio_version": "1.1",
+    "dependencies": ["base >= 1.1", "RealisticFusionCore"]
+}

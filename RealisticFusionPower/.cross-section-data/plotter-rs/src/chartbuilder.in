@@ -1,0 +1,4 @@
+ChartBuilder::on(&bitmap)
+    .margin((width*0.005) as u32)
+    .set_label_area_size(LabelAreaPosition::Left, (width*0.10) as u32)
+    .set_label_area_size(LabelAreaPosition::Bottom, (width*0.06) as u32)

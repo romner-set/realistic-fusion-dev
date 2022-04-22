@@ -1,0 +1,101 @@
+Sources at the end, referenced in [].
+1u of Factorio liquid = (200/4184)*1000 ml = 25000/523 ml = ~47.8 ml
+Calculated using the heat density of 1 ingame water unit (200J/C), dividing it by water's specific heat density (4184J/kg*C) to get the mass in kg, then *1000 to get the volume in ml (1g of water = almost exactly 1ml).
+
+Deuterium production [1,2,13,14]:
+    1. pump up lots of water [1,2,13]
+    2. refinery - (optional, higher efficiency) girdler sulfide process - 3 stages: water (0.0155% [1]) => 0.155% heavy water => 1.55% HW => 15.5% HW => pure(-ish) HW [1,2,13]
+        - the separation factor is either 1.3 or 1.8 to 2.3, depending on which paper I look at ([2] even has different numbers depending on which chapter I'm in...)
+          note: "separation factor" is just the ratios of water and heavy water before and after the process divided together
+          e.g. 1.55% HW => 15.5% HW has a separation factor of ((100-1.55) / 1.55) / ((100-15.5) / 15.5) = ~11.65
+        - and the energy usage at that separation factor is around 30GJ/kg, which is absolutely ridiculous for Factorio...
+        - ...so I made up my own numbers! Balanced, I think. Don't have much to say here, except that I did some testing and 1s time to craft in the refinery seems fine.
+    3. el. boiler - 100C distillation - 4 stages, the first 3 can be replaced with the GS process [1,13]
+        - using https://chemistry.stackexchange.com/a/27312:
+          m = 100u = 2500000/523 g = ~4780 g
+            - for the first 3 stages, 10% of which doesn't get vaporized so shouldn't be multiplied by 540 (raising HW concentration 10x requires the removal of 90% of the water)
+            - for the last stage, HW% (15.5%) of which doesn't get vaporized so shouldn't be multiplied either
+          T = 100-15 = 85C
+          
+          total energy for the first 3 stages = (m*85 + m*0.9*540) * 4.184       = 11420000J    = 11.42 MJ
+          total energy for the last stage     = (m*85 + m*(1-0.155)*540) * 4.184 = 10826000J    = 10.826MJ
+          time to heat for the first 3 stages = 11.42  MJ / 1.2 MW               = 9.51666... s = ~9.5s
+          time to heat for the last stage     = 10.826 MJ / 1.2 MW               = 9.021666...s = ~9s
+    4. electrolyse heavy water to get deuterium gas [1,2,13,14]
+        30kWh/kg [14; rounded up from 26.63] = 108MJ/kg => 108 * (200/4184) = ~5MJ/u of deuterium
+        5MJ / 2MW = 2.5s/u => 10s/4u of deuterium
+        
+        1 HW to 4 deuterium gas because otherwise the sheer number of refineries/boilers needed is ridiculous, plus deuterium is much less dense than HW so it makes sense
+Lithium production [3-5,10,12]:
+    1. brine mining [3,4], deposits similar to oil but rarer
+    2. thermal evaporation plant - brine to lithium-rich brine and potassium chloride [3,4]
+      - Potassium concentration on average around (0.4 + (1.3+2.4)/2 + 2.36 + (0.24+0.97)/2 + 1.17 + 2.53 + (0.26+0.72)/2 + 0.56 + 1.66 + 0.44)/10 = 1.2%
+        - potassium and chlorine have nearly the same atomic mass so *2 to get potassium chloride concentration = 2.4%
+      - Lithium concentration on average around (0.0163 + (0.01+0.04)/2 + 0.157 + (0.068+0.121)/2 + 0.0321 + 0.0054 + 0.0018 + 0.0012 + 0.0489 + 0.031)/10 = 0.04%
+      
+      - Using the above numbers: 1200u of brine * 2.4% = 28.8 ~= 30u, let's just assume 1 item = 1 fluid unit in volume
+      - 1200u * 0.04% = ~0.48u, x4 because lithium is ~4x less dense than KCl = ~2u
+    3. chemistry plant - lithium-rich brine + coal to lithium carbonate and water [3,4; coal instead of sodium carbonate for simplicity]
+      Lithium metal:
+        4. el. boiler - lithium carbonate and potassium chloride to molten lithium electrolyte [4; I used lithium carbonate instead of chloride to keep it simple]
+        5. electrolytic cell - molten lithium electrolyte to lithium [4; adding an additional step to cool it is just unnecessary]
+      Lithium titanate:
+        4. chemistry plant - lithium carbonate + titanium to lithium titanate [5,10; titanium oxide replaced with titanium for simplicity's sake]
+Tritium production [6-9, 11]:
+    - Lithium metal/titanate can get converted into tritium in fusion & fission reactors [6-8,11]
+      - output is tritium gas [no specific source, but tritium breeding shouldn't heat up the titanate and in turn the tritium so much that it'd become plasma]
+      - fission reactors also work in the form of special tritium-breeding fuel cells, but are way slower and less efficient
+        - [no source either, but fission produces neutrons just like neutronic fusion so it should be realistic]
+    - Tritium recovery from used-up fission fuel cells, produces only very small amounts compared to breeding [9]
+Helium-3 production [11]:
+    - Tritium decay in a light isotope processor [11]
+    - yeah, it's really that simple
+The actual fusion (reactor used is neutronic unless specified otherwise) [11, TODO]:
+    1. simple D-D fusion - uses deuterium, doesn't make much net power, about as practical as fission
+       first stage of GS unlocked
+    2. breeding D-D fusion - uses deuterium and lithium titanate or just lithium to breed tritium which is output as gas, makes negative net power
+       D-T fusion - uses deuterium and tritium bred from the above D-D fusion, more than makes up for D-D's net power loss, better than fission
+       second stage of GS unlocked
+    3. He3 production from tritium decay
+       He3-He3 fusion - uses helium made from tritium decay, makes more power than D-T and is aneutronic
+       third stage of GS unlocked
+    4. tritium-suppressed D-D fusion [11] - makes it possible to remove tritium from D-D fusion, massively decreasing its already low power output way below negative net power
+       can be used to completely remove the need for lithium or just as a way to make some extra tritium, but without lithium the amount of tritium and in turn power produced is significantly lower
+       also needs a tritium input, but not as much as it outputs even without lithium
+       the tritium it outputs is in plasma form (and not completely pure?), has to be cooled down/processed in a light isotope processor
+    5. D-He3 fusion - uses deuterium and He3, much higher net power than He3-He3, also aneutronic
+    6. helium-suppressed D-D fusion [11] - makes it possible to remove helium-3 from D-D fusion, massively decreasing its already tiny power output wayyyy below negative net power
+       needs a tritium input, around as much as it needs without lithium
+       the T and He3 it outputs is in plasma form (and not completely pure?), has to be cooled down/processed in a light isotope processor
+    
+    - Every fusion except breeder and tritium-suppressed D-D has an ICF version which:
+       - doesn't need pre-heated plasma, uses fuel pellets made from the gases + U-238
+       - makes more power but less efficiently
+       - has its own neutronic and aneutronic reactors
+Sources:
+    [1]  https://cns-snc.ca/media/Bulletin/A_Miller_Heavy_Water.pdf
+    [2]  https://pubs.acs.org/doi/pdf/10.1021/bk-1978-0068.ch001
+    [3]  https://www.sciencedirect.com/science/article/pii/B9780128014172000037
+    [4]  https://www.thoughtco.com/lithium-production-2340123
+    [5]  https://www.sciencedirect.com/science/article/abs/pii/S0920379608004985
+    [6]  https://www.sciencedirect.com/science/article/abs/pii/S0022311509800056
+    [7]  https://www.sciencedirect.com/science/article/abs/pii/002231159490961X
+    [8]  https://www.sciencedirect.com/science/article/abs/pii/0022311594909717
+    [9]  https://link.springer.com/article/10.1007/s10894-018-0182-1
+    [10] https://www.sciencedirect.com/science/article/abs/pii/S0920379621001873
+    [11] https://www.tandfonline.com/doi/abs/10.13182/FST53-780
+    [12] https://www.angelo.edu/faculty/kboudrea/periodic/structure_mass.htm
+    [13] https://link.springer.com/article/10.1007/BF01480337
+    [14] https://www.sciencedirect.com/science/article/abs/pii/S0360319921007187
+    [15] https://iopscience.iop.org/article/10.1088/0029-5515/32/4/I07/pdf
+    [16] https://www.researchgate.net/publication/230942652_A_new_simple_formula_for_fusion_cross-sections_of_light_nuclei
+Additional:
+    [A1] https://www.osti.gov/biblio/5154717
+    [A2] https://aip.scitation.org/doi/pdf/10.1063/1.859945
+    [A3] https://arxiv.org/abs/2104.06251
+    [A4] https://www.researchgate.net/publication/328024871_Fusion_a_true_challenge_for_an_enormous_reward
+    [A5] https://scipython.com/blog/nuclear-fusion-cross-sections/
+    
+If you can't afford to pay for some of the articles, you absolutely should not use https://sci-hub.se/ to access them for free.
+You also should not put https://sci-hub.se/ right in front of the pay-walled URL, as that would take you directly to the paper.
+E.g. "https://link.springer.com/..." would become "https://sci-hub.se/https://link.springer.com/...". Don't do that.

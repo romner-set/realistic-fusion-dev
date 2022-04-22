@@ -1,0 +1,11 @@
+{
+    "name": "RealisticFusionCore",
+    "version": "1.0.0",
+    "title": "Realistic Fusion - Core",
+    "author": "Romner_set",
+    "description": "The core mod for the Realistic Fusion series, containing functions and other stuff used by RF mods.\nDoesn't add anything useful by itself.",
+    "contact": "Mod portal or discord Romner#5341",
+    "homepage": "https://mods.factorio.com/mod/RealisticFusionCore",
+    "factorio_version": "1.1",
+    "dependencies": ["base >= 1.1", "? angelspetrochem"]
+}

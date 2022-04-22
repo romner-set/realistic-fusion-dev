@@ -1,0 +1,2 @@
+All textures in this directory are modified from Krastorio 2: https://mods.factorio.com/mod/Krastorio2
+Everything in this directory is licensed under GNU GPL v3, see license.txt for full license.

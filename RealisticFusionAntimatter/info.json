@@ -1,0 +1,11 @@
+{
+    "name": "RealisticFusionAntimatter",
+    "version": "1.0.0",
+    "title": "Realistic Fusion - Antimatter",
+    "author": "Romner_set",
+    "description": "Adds very late-game antimatter power.\nPart of the Realistic Fusion series, but can be used as standalone.",
+    "contact": "Mod portal or discord Romner#5341",
+    "homepage": "https://mods.factorio.com/mod/RealisticFusionAntimatter",
+    "factorio_version": "1.1",
+    "dependencies": ["base >= 1.1", "RealisticFusionCore", "? RealisticFusionPower >= 2.0", "? Krastorio2", "? Krastorio2-more-locomotives", "? angelspetrochem", "? angelssmelting", "? angelsindustries", "? bobelectronics", "? bobplates", "? bobpower", "? space-exploration", "? aai-industry"]
+}

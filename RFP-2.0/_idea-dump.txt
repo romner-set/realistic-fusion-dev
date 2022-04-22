@@ -1,0 +1,47 @@
+Fuel gets pre-heated in heaters to near fusion temp so most of the heating isn't done by the reactor, then transported at low pressure to prevent accidental fusion & loss of energy
+Fusion controller
+    - sensors:
+        magnetic confinement:
+            # plasma pressure/density
+            # plasma temperature
+            # plasma mass
+            # fusion rate
+            # energy output
+            # tritium breeding rate
+            # reactor wall integrity (repaired manually)
+        inertial confinement:
+            # stored input energy
+            # stored output energy (heat for neutronic, charged particles for aneutronic)
+            # energy per impulse (used, produced)
+            # tritium breeding rate
+            # reactor wall integrity (repaired manually?, later self-repairing)
+    - variables:
+        magnetic confinement:
+            # magnetic field strength (slider) - controls plasma pressure/density and in turn the fusion rate etc
+            # plasma flow (speed slider + direction switch / speed slider with negative values) - optimal flow makes confinement easier and so lowers the needed magnet strength
+            # plasma heating (slider) - controls plasma temperature and in turn the fusion rate etc
+        inertial confinement:
+            # force a pulse immediately (button)
+            # seconds between pulses (better algorithms allow lower values) - not applicable for non-algorithmic controllers
+    - optimal values can change drastically over time, all depend on each other
+    - several tiers based on tech
+        T1: manual/static
+            # players manually change variables through a GUI
+            # least efficient unless there's someone constantly monitoring it, at which point it can be as good as adv. algorithms
+        T2: remote-controlled
+            # buttons always on-screen to bring up reactor interfaces, players can change variables anytime
+            # otherwise same as above
+        T2: basic algorithms
+            # dynamically changes variables
+            # slow and generally not great at its job, but fully automatic and better than not changing anything
+            # "if A <= _ do X, if B > _ do Y" etc
+        T3: advanced algorithms
+            # also dynamically changes variables
+            # almost real-time, but not completely accurate
+            # "if A <= _ && B >= _ do X, if B >= _ || C == _ do Y" etc
+        T4: AI-assisted
+            # dynamically changes variables accounting for what's gonna happen next
+            # real-time, very accurate
+            # can optimize so well that self-sustaining fusion is possible with certain fuels (without the need for a heater except on startup)
+
+?Non-ICF fusion can be boosted for a short amount of time by throwing an ICF fuel pellet into the reactor

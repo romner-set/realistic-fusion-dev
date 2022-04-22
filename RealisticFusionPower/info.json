@@ -1,0 +1,11 @@
+{
+    "name": "RealisticFusionPower",
+    "version": "2.0.0",
+    "title": "Realistic Fusion - Power",
+    "author": "Romner_set",
+    "description": "Adds a new way to make energy through nuclear fusion.\nMain mod of the Realistic Fusion series.",
+    "contact": "Mod portal or discord Romner#5341",
+    "homepage": "https://mods.factorio.com/mod/RealisticFusionPower",
+    "factorio_version": "1.1",
+    "dependencies": ["base >= 1.1", "RealisticFusionCore"]
+}

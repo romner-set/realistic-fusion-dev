@@ -1,0 +1,13 @@
+[i] = item, render at 256x256 incase I'd want to use some as technology icons
+[e XxY] = entity, where XxY is the tile size (an HD tile is 64x64px, but don't forget that the texture also includes the shadow)
+stuff is ordered from most important to least (roughly)
+
+ICF fusion:
+	1. [e 16x16] ICF reactors - just a single entity without fluid inputs/outputs, unless you'd make:
+		1. [e 3x6?] the laser emitters which could connect to the reactor from multiple sides (the more are connected, the more power the reactor can make), meaning it would have to be rotatable, which means at least 2 textures
+		2. [e 4x5] a heat exchanger that would also have to connect to the reactor seamlessly, and might also need 3 textures
+		3. [e 12x12] the reactor itself, which could have up to let's say 8 laser emitters connected to it plus one (or more?) heat exchanger(s?) (https://i.imgur.com/loP2SHa.png)
+
+		Would make ICF very interesting gameplay-wise, but it's also a lot of work, so it's up to you if you want to make all of those textures or not.
+	2. [i] ICF fuel pellets - smaller and more spherical uranium fuel cells
+		- I made some colored gas icons back when I was making RFP 1.0, so you can base the colors off of https://i.imgur.com/d6AiCPm.png; I'll need D-D, D-T, He3-He3 and D-He3.
