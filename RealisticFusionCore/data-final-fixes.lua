@@ -1,5 +1,7 @@
+-- COMPATIBILITY PATCHES --
 for k,_ in pairs(mods) do pcall(require, "compatibility-patches."..k..".data-final-fixes") end
 
+-- #region DDW RECYCLING --
 if settings.startup["rf-ddw-recycling"].value then
     local recipes = {}
     for _,recipe in pairs(data.raw.recipe) do
@@ -115,3 +117,4 @@ if settings.startup["rf-ddw-recycling"].value then
 
     data:extend(recipes)
 end
+-- #endregion --

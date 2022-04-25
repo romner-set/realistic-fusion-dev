@@ -1,9 +1,13 @@
---- Heating ---
--- D-D --
+-- #region DATASETS --
 rfcore.ddhpower = {400, 375, 325, 275, 200}
 rfcore.dthpower = {200, 150, 125, 110, 100}
 rfcore.he3he3hpower = {7, 6.5, 6, 5.5, 5}
 rfcore.dhe3hpower = {5, 4, 3, 2, 1.5}
+-- #endregion --
+
+-- #region DATA --
+
+-- #region HEATING --
 local stuff = {}
 for i = 1, 5 do
     table.insert(stuff, {
@@ -72,9 +76,10 @@ for i = 1, 5 do
     })
 end
 data:extend(stuff)
+-- #endregion --
 
 data:extend{
-    -- Gas mixing --
+    -- #region LIGHT ISOTOPE PROCESSING --
     {
         type = "recipe",
         name = "rf-d-t-mixing",
@@ -130,6 +135,9 @@ data:extend{
       results = {{type = "fluid", name = "rf-tritium", amount = 1}},
       allow_decomposition = false
     },
+    -- #endregion --
+
+    -- #region BREEDER URANIUM CELLS
     {
       type = "recipe",
       name = "rf-breeder-tritium-recovery",
@@ -159,8 +167,9 @@ data:extend{
       result = "rf-breeder-uranium-fuel-cell",
       result_count = 10
     },
+    -- #endregion --
 
--- Deuterium extraction --
+    -- #region DEUTERIUM EXTRACTION --
     {
         type = "recipe",
         name = "rf-hydrogen-sulfide",
@@ -317,8 +326,9 @@ data:extend{
         subgroup = "fluid-recipes",
         order = "z[realistic-fusion]-a[deuterium]-d[electrolysis]",
     },
+    -- #endregion --
 
-    -- Lithium extraction --
+    -- #region LITHIUM EXTRACTION --
     {
         type = "recipe",
         name = "rf-thermal-evaporation",
@@ -408,9 +418,11 @@ data:extend{
         subgroup = "fluid-recipes",
         order = "z[realistic-fusion]-b[lithium]-z[potassium-chloride-dissolution]",
     },
+    -- #endregion --
 }
+-- #endregion --
 
--- More deuterium extraction --
+-- #region DEUTERIUM EXTRACTION --
 for i=1, 2 do
     data:extend{
         {
@@ -464,3 +476,4 @@ for i=1, 2 do
         },
     }
 end
+-- #endregion --

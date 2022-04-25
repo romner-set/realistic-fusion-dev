@@ -2,6 +2,7 @@ data:extend{
     -- Add an electric boiler if angels petrochem not present --
     -- All textures and code are from angels petrochem: https://mods.factorio.com/mod/angelspetrochem
     -- To (hopefully) comply with CC BY-NC-ND 4.0, all changes made are indicated in comments starting with --*
+    -- #region ANGEL'S CODE --
     {
         type = "item",
         name = "angels-electric-boiler",
@@ -163,4 +164,5 @@ data:extend{
         localised_name = {"rf.electric-boiler"}, localised_description = {"rf.electric-boiler-description", "rf-heavy-water", "water"}, --*added line
         se_allow_in_space = true, --*added line
     },
+    -- #endregion --
 }

@@ -1,4 +1,5 @@
--- Sprites because they are each used more than once --
+-- #region SPRITES --
+--each used more than once
 local gas_mixer = {
     {layers = {
         {filename = "__RealisticFusionCore__/graphics/entities/light-isotope-processor-0.png", size = 320, scale = 0.5},
@@ -21,6 +22,7 @@ local electrolyser = {
         {filename = "__RealisticFusionCore__/graphics/entities/shadows/electrolyser-1.png", size = 160, draw_as_shadow = true}
     }},
 }
+
 local thermal_ep = {
     base = {
         filename = "__RealisticFusionCore__/graphics/entities/thermal-evaporation-plant.png",
@@ -48,9 +50,11 @@ local thermal_ep = {
         draw_as_shadow = true
     }
 }
+-- #endregion --
 
+-- #region DATA --
 data:extend{
-    -- Magnetic pipes and pump --
+    -- #region MAGNETIC PIPES AND PUMP --
     {
         type = "pipe",
         name = "rf-magnetic-pipe",
@@ -219,8 +223,9 @@ data:extend{
         circuit_connector_sprites = circuit_connector_definitions["pump"].sprites,
         circuit_wire_max_distance = default_circuit_wire_max_distance
     },
+    -- #endregion --
 
-    -- Plasma heater --
+    -- PLASMA HEATER --
     {
         type = "assembling-machine",
         name = "rf-heater",
@@ -310,7 +315,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Gas mixer --
+    -- GAS MIXER --
     {
         name = "rf-light-isotope-processor",
         type = "assembling-machine",
@@ -371,7 +376,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Electolyser --
+    -- ELECTOLYSER --
     {
         type = "assembling-machine",
         name = "rf-electrolyser",
@@ -440,7 +445,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Discharge pump --
+    -- DISCHARGE PUMP --
     {
         type = "assembling-machine",
         name = "rf-discharge-pump",
@@ -760,7 +765,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Thermal evaporation plant --
+    -- THERMAL EVAPORATION PLANT --
     {
         type = "assembling-machine",
         name = "rf-thermal-evaporation-plant",
@@ -827,3 +832,4 @@ data:extend{
         },
     },
 }
+-- #endregion --

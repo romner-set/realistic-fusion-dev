@@ -1,7 +1,10 @@
+-- COMPATIBILITY PATCHES --
 for k,_ in pairs(mods) do pcall(require, "compatibility-patches."..k..".data-final-fixes") end
 
+-- #region FUSION & THERMONUCLEAR FUEL --
 if data.raw.recipe["nuclear-fuel"] and not data.raw.recipe["nuclear-fuel"].hidden and not mods["Krastorio2"] then
     data:extend{
+        -- #region ITEMS --
         {
             type = "item",
             name = "rf-fuel-thermonuclear",
@@ -70,7 +73,9 @@ if data.raw.recipe["nuclear-fuel"] and not data.raw.recipe["nuclear-fuel"].hidde
             order = "q[uranium-rocket-fuel]-b[fusion-rocket-fuel]",
             stack_size = 1
         },
+        -- #endregion --
 
+        -- #region RECIPES --
         {
             type = "recipe",
             name = "rf-fuel-thermonuclear",
@@ -93,7 +98,9 @@ if data.raw.recipe["nuclear-fuel"] and not data.raw.recipe["nuclear-fuel"].hidde
             icon_size = 64, icon_mipmaps = 4,
             result = "rf-fuel-fusion"
         },
+        -- #endregion --
     }
     --TODO table.insert(data.raw.technology["rf-fusion-d-t"].effects, {type = "unlock-recipe", recipe = "rf-fuel-thermonuclear"})
     --TODO table.insert(data.raw.technology["rf-fusion-d-he3"].effects, {type = "unlock-recipe", recipe = "rf-fuel-fusion"})
 end
+-- #endregion --

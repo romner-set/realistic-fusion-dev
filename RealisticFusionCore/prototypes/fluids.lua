@@ -1,5 +1,5 @@
 data:extend{
-    --- Stuff ---
+    -- #region GENERAL --
     {
         type = "fluid",
         name = "rf-deuterium",
@@ -33,8 +33,9 @@ data:extend{
         flow_color = {1,0.5,0,0.5},
         gas_temperature = -270,
     },
+    -- #endregion --
 
-    --- Lithium stuff ---
+    -- #region LITHIUM --
     {
         type = "fluid",
         name = "rf-brine",
@@ -65,8 +66,9 @@ data:extend{
         base_color = {40,180,100,128},
         flow_color = {40,180,100,128},
     },
+    -- #endregion --
 
-    --- Mixes ---
+    -- #region MIXES --
     {
         type = "fluid",
         name = "rf-d-t-mix",
@@ -91,8 +93,9 @@ data:extend{
         gas_temperature = -270,
         auto_barrel = false,
     },
+    -- #endregion --
 
-    --- Plasma ---
+    -- #region PLASMA --
     {
         type = "fluid",
         name = "rf-deuterium-plasma",
@@ -153,9 +156,9 @@ data:extend{
         gas_temperature = -270,
         auto_barrel = false,
     },
+    -- #endregion --
 
-
-    -- Deuterium extraction stuff --
+    -- #region DEUTERIUM EXTRACTION --
     {
         type = "fluid",
         name = "rf-hydrogen-sulfide",
@@ -187,8 +190,10 @@ data:extend{
         base_color = {0,0,0.8},
         flow_color = {0,0,0.8},
     }
+    -- #endregion --
 }
 
+-- #region HEAVY WATER --
 for i=0, 2 do
     rfcore.hw_percentage = {5,10,20}
     data:extend{
@@ -208,3 +213,4 @@ for i=0, 2 do
         }
     }
 end
+-- #endregion --

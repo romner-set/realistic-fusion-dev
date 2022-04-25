@@ -1,4 +1,4 @@
----- Constants & functions ----
+-- #region CONSTANTS & FUNCTIONS --
 require("try-catch")
 rfcore = {
     fluids_am = {},
@@ -17,8 +17,9 @@ remote.add_interface("rfcore", { --make sure to call both on_init and on_load
     return_list = function(key) return rfcore[key] end,
     is_in_list = function(key, value) return rfcore[key][value] ~= nil end,
 })
+-- #endregion --
 
----- On event ----
+-- #region ON EVENT --
 script.on_event({defines.events.script_raised_built, defines.events.on_robot_built_entity, defines.events.on_built_entity}, function(event) if not global.stop then
     try_catch(function()
         if global.entities and rfcore.fluid_filter_prototypes[event.created_entity.type] and string.sub(event.created_entity.name, 1, 3) ~= "rf-" then
@@ -45,8 +46,9 @@ script.on_event({
         if settings.global["rf-operations-per-tick"].value == 0 then global.stop = true else global.stop = false end
     end
 end) end)
+-- #endregion --
 
----- Init ----
+-- #region INIT --
 script.on_init(function() try_catch(function()
         global.k = 0
         global.entities = {}
@@ -61,8 +63,9 @@ script.on_init(function() try_catch(function()
         end
     end)
 end)
+-- #endregion --
 
----- On tick ----
+-- #region ON TICK --
 script.on_event(defines.events.on_tick, function(_) if not global.stop then
     try_catch(function()
         if global.entities and next(global.entities) then
@@ -95,3 +98,4 @@ script.on_event(defines.events.on_tick, function(_) if not global.stop then
         end
     end)
 end end)
+-- #endregion --

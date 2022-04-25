@@ -1,5 +1,6 @@
+-- #region DATA
 data:extend{
-    -- Production --
+    -- #region PRODUCTION --
     {
         type = "technology",
         name = "rf-fusion-reactor",
@@ -60,8 +61,9 @@ data:extend{
             {type = "unlock-recipe", recipe = "rf-fusion-d-d-2-9"},
         },
     },
+    -- #endregion --
 
-    -- Utility --
+    -- #region UTILITY --
     {
         type = "technology",
         name = "rf-fusion-d-t",
@@ -163,8 +165,9 @@ data:extend{
             {type = "unlock-recipe", recipe = "rf-fusion-he3-he3-9"}
         },
     },
+    -- #endregion --
 
-    -- Space --
+    -- #region SPACE --
     {
         type = "technology",
         name = "rf-fusion-d-he3",
@@ -187,9 +190,13 @@ data:extend{
             {type = "unlock-recipe", recipe = "rf-fusion-d-he3-9"},
         },
     },
+    -- #endregion --
 }
+-- #endregion --
 
+-- #region HIGH-CAPACITY EXCHANGER & TURBINE --
 if settings.startup["rf-hc-stuff"].value then
     table.insert(data.raw.technology["rf-fusion-d-t"].effects, {type = "unlock-recipe", recipe = "rf-hc-exchanger"})
     table.insert(data.raw.technology["rf-fusion-d-t"].effects, {type = "unlock-recipe", recipe = "rf-hc-turbine"})
 end
+-- #endregion --

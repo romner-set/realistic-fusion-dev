@@ -1,3 +1,4 @@
+-- #region DATA --
 data:extend{
     {
         type = "recipe-category",
@@ -24,3 +25,4 @@ data:extend{
         name = "rf-thermal-evaporation"
     },
 }
+-- #endregion --

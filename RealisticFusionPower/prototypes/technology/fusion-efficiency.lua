@@ -1,5 +1,7 @@
--- D-D-2 --
+-- #region DATA --
+
 data:extend{
+-- #region D-D-2 --
     {
         type = "technology",
         name = "rf-fusion-d-d-2-efficiency-1",
@@ -207,10 +209,9 @@ data:extend{
             {type = "unlock-recipe", recipe = "rf-fusion-d-d-2-0"}
         }
     },
-}
+-- #endregion --
 
--- D-D-1 --
-data:extend{
+-- #region D-D-1 --
     {
         type = "technology",
         name = "rf-fusion-d-d-1-efficiency-1",
@@ -420,11 +421,10 @@ data:extend{
             {type = "nothing", effect_description  = "Tritium suppressed D-D fusion: +10MW [300MW]"},
             {type = "unlock-recipe", recipe = "rf-fusion-d-d-1-0"}
         }
-    }
-}
+    },
+-- #endregion --
 
--- D-T --
-data:extend{
+-- #region D-T --
     {
         type = "technology",
         name = "rf-fusion-d-t-efficiency-1",
@@ -634,11 +634,10 @@ data:extend{
             {type = "nothing", effect_description  = "D-T fusion: +50MW [2000MW]"},
             {type = "unlock-recipe", recipe = "rf-fusion-d-t-0"}
         }
-    }
-}
+    },
+-- #endregion --
 
--- D-D-0 --
-data:extend{
+-- #region D-D-0 --
     {
         type = "technology",
         name = "rf-fusion-d-d-0-efficiency-1",
@@ -848,11 +847,10 @@ data:extend{
             {type = "nothing", effect_description  = "T+He3 suppressed D-D fusion: +10MW [200MW]"},
             {type = "unlock-recipe", recipe = "rf-fusion-d-d-0-0"}
         }
-    }
-}
+    },
+-- #endregion --
 
--- He3-He3 --
-data:extend{
+-- #region He3-He3 --
     {
         type = "technology",
         name = "rf-fusion-he3-he3-efficiency-1",
@@ -1065,11 +1063,10 @@ data:extend{
             {type = "nothing", effect_description  = "D-D fusion: +500MW [15GW]"},
             {type = "unlock-recipe", recipe = "rf-fusion-he3-he3-0"}
         }
-    }
-}
+    },
+-- #endregion --
 
--- D-He3 --
-data:extend{
+-- #region D-He3 --
     {
         type = "technology",
         name = "rf-fusion-d-he3-efficiency-1",
@@ -1303,5 +1300,8 @@ data:extend{
                 effect_description = "D-He3 fusion: +3GW [20GW]"},
             {type = "unlock-recipe", recipe = "rf-fusion-d-he3-0"}
         }
-    }
+    },
+-- #endregion --
 }
+
+-- #endregion --

@@ -1,4 +1,4 @@
--- Init rfcore global --
+-- #region INIT GLOBAL(-ish) TABLE --
 rfcore = require("prototypes.pipe-pictures") --{magnetic_pipe_pictures(), magnetic_pipe_to_ground_pictures(), magnetic_pipe_covers_pictures()}
 
 rfcore.sm = settings.startup["rf-science-multiplier"].value/2 --TODO /2 added in 1.3.5 because science cost was too high + I'm too lazy to change all of the values manually
@@ -26,8 +26,9 @@ function rfcore.mapMany(array, f)
 	end
 	return result;
 end
+-- #endregion --
 
--- Init prototypes --
+-- #region INIT PROTOTYPES --
 require("prototypes.items")
 require("prototypes.entities")
 require("prototypes.fluids")
@@ -38,6 +39,7 @@ require("prototypes.resources")
 --TODO require("prototypes.technology.technology")
 --TODO require("prototypes.technology.heating-efficiency")
 if not mods["angelspetrochem"] then require("electric-boiler.electric-boiler") end
+-- #endregion --
 
--- Compatibility patches --
+-- COMPATIBILITY PATCHES --
 for k,_ in pairs(mods) do pcall(require, "compatibility-patches."..k..".data") end

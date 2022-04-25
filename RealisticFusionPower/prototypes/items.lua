@@ -1,3 +1,4 @@
+-- #region HIGH-CAPACITY EXCHANGER & TURBINE --
 if settings.startup["rf-hc-stuff"].value then
     local hc_hx = util.table.deepcopy(data.raw.item["heat-exchanger"])
     hc_hx.name = "rf-hc-exchanger"
@@ -17,8 +18,11 @@ if settings.startup["rf-hc-stuff"].value then
 
     data:extend{hc_hx, hc_t}
 end
+-- #endregion --
 
+-- #region DATA --
 data:extend{
+    -- #region ENTITY ITEMS --
     {
         type = "item",
         name = "rf-reactor",
@@ -107,6 +111,9 @@ data:extend{
         stack_size = 1,
         place_result = "rf-direct-energy-converter",
     },
+    -- #endregion --
+
+    -- #region ITEMS --
     {
         type = "item",
         name = "rf-d-d-fuel-pellet",
@@ -147,4 +154,6 @@ data:extend{
         icon_size = 128, icon_mipmaps = 4,
         stack_size = 20,
     },
+    -- #endregion --
 }
+-- #endregion --

@@ -1,5 +1,5 @@
--- D-D --
 data:extend{
+-- #region D-D --
     {
         type = "technology",
         name = "rf-d-d-heating-efficiency-1",
@@ -95,10 +95,9 @@ data:extend{
         },
         localised_description = {"rf.heating", "deuterium", "rf-deuterium", "D-D"}
     },
-}
+-- #endregion --
 
--- D-T --
-data:extend{
+-- #region D-T --
     {
         type = "technology",
         name = "rf-d-t-heating-efficiency-1",
@@ -197,10 +196,9 @@ data:extend{
         },
         localised_description = {"rf.heating", "the D-T mix", "rf-d-t-mix", "D-T"}
     },
-}
+-- #endregion
 
--- He3-He3 --
-data:extend{
+-- #region He3-He3 --
     {
         type = "technology",
         name = "rf-he3-he3-heating-efficiency-1",
@@ -300,10 +298,9 @@ data:extend{
         },
         localised_description = {"rf.heating", "helium-3", "rf-helium-3", "He3-He3"}
     },
-}
+-- #endregion --
 
--- D-He3 --
-data:extend{
+-- #region D-He3 --
     {
         type = "technology",
         name = "rf-d-he3-heating-efficiency-1",
@@ -404,4 +401,5 @@ data:extend{
         },
         localised_description = {"rf.heating", "the D-He3 mixture", "rf-d-he3-mix", "D-He3"}
     },
+-- #endregion --
 }

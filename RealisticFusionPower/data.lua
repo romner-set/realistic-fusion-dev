@@ -1,7 +1,8 @@
--- Compatibility patches --
+-- #region COMPATIBILITY PATCHES --
 for k,_ in pairs(mods) do pcall(require, "compatibility-patches."..k..".pre-data") end
+-- #endregion --
 
--- Init prototypes --
+-- #region INIT PROTOTYPES --
 require("prototypes.gui")
 require("prototypes.items")
 require("prototypes.entities")
@@ -11,6 +12,8 @@ require("prototypes.recipes.items")
 require("prototypes.recipes.recipes")
 --TODO require("prototypes.technology.technology")
 --TODO require("prototypes.technology.fusion-efficiency")
+-- #endregion --
 
--- Compatibility patches --
+-- #region COMPATIBILITY PATCHES --
 for k,_ in pairs(mods) do pcall(require, "compatibility-patches."..k..".data") end
+-- #endregion --

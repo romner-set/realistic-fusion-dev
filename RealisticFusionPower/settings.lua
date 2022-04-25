@@ -1,4 +1,4 @@
--- Init settings --
+-- #region INIT SETTINGS --
 data:extend{
     {
         type = "int-setting",
@@ -23,6 +23,7 @@ data:extend{
         order = "c"
     },
 }
+-- #endregion --
 
--- Compatibility patches --
+-- COMPATIBILITY PATCHES --
 for k,_ in pairs(mods) do pcall(require, "compatibility-patches."..k..".settings") end

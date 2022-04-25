@@ -1,3 +1,4 @@
+-- #region MAGNETIC PIPES --
 local pipe = table.deepcopy(data.raw.item["pipe"])
 pipe.name = "rf-magnetic-pipe"
 pipe.place_result = "rf-magnetic-pipe"
@@ -21,8 +22,11 @@ pump.icons = nil
 pump.icon = "__RealisticFusionCore__/graphics/icons/magnetic-pump.png"
 pump.icon_size = 64; pipe.icon_mipmaps = 4
 pump.order = "b[pipe]-z[magnetic-pump]"
+-- #endregion --
 
+-- #region DATA --
 data:extend{pipe, pipeToGround, pump,
+    -- #region ENTITY ITEMS --
     {
         type = "item",
         name = "rf-heater",
@@ -76,6 +80,9 @@ data:extend{pipe, pipeToGround, pump,
         stack_size = 20,
         localised_description = {"rf.discharge-pump", "rf-depleted-water"}
     },
+    -- #endregion --
+
+    -- #region ITEMS --
     {
       type = "item",
       name = "rf-breeder-uranium-fuel-cell",
@@ -118,7 +125,7 @@ data:extend{pipe, pipeToGround, pump,
       stack_size = 50
     },
 
-    -- Lithium-related stuff --
+    -- #region LITHIUM-RELATED STUFF --
     {
         type = "item",
         name = "rf-potassium-chloride",
@@ -177,4 +184,8 @@ data:extend{pipe, pipeToGround, pump,
         order = "g[centrifuge]z[realistic-fusion]-b[lithium]-a[lithium-metal]",
         stack_size = 100,
     },
+    -- #endregion --
+
+    -- #endregion --
 }
+-- #endregion --

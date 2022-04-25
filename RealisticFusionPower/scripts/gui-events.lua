@@ -1,17 +1,7 @@
-local reactor_logic = require("scripts.reactor-logic")
-
-script.on_event(defines.events.on_gui_click, function(event)
-    try_catch(function()
-        if event.element and event.element.name == "rf-close-button" then
-            global.reactors[event.element.tags.unit_number].guis.sliders[event.player_index] = nil
-            global.reactors[event.element.tags.unit_number].guis.switches[event.player_index] = nil
-            game.get_player(event.player_index).gui.screen[rfpower.gui_name].destroy() --DESTROY sounds a bit aggressive for just closing a GUI...
-        end
-    end)
-end)
-
 local function update_gui(event, value)
     local name = event.element.name:sub(4)
+
+    -- #region GIGANTIC UGLY IF-BLOCK FOR UPDATING STUFF AFTER FLIPPING SWITCHES WHICH I CAN'T BE BOTHERED TO REPLACE (--TODO?--) --
     if name == "systems" then
         if event.element[value] == "right" then
             for idx, bars in pairs(global.reactors[event.element.tags.unit_number].guis.bars) do
@@ -99,7 +89,9 @@ local function update_gui(event, value)
             end
         end
     end
+    -- #endregion --
 
+    -- #region UPDATE ELEMENT --
     global.reactors[event.element.tags.unit_number][name:gsub("-", "_")] = event.element[value]
 
     for idx, v in pairs(global.reactors[event.element.tags.unit_number].guis.sliders) do
@@ -108,7 +100,19 @@ local function update_gui(event, value)
         end
         if value == "slider_value" then v[name].parent[event.element.name.."-value-frame"][event.element.name.."-value"].caption = (event.element.slider_value.."%"):sub(1,3) end
     end
+    -- #endregion --
 end
+
+-- #region EVENT HANDLERS --
+script.on_event(defines.events.on_gui_click, function(event)
+    try_catch(function()
+        if event.element and event.element.name == "rf-close-button" then
+            global.reactors[event.element.tags.unit_number].guis.sliders[event.player_index] = nil
+            global.reactors[event.element.tags.unit_number].guis.switches[event.player_index] = nil
+            game.get_player(event.player_index).gui.screen[rfpower.gui_name].destroy() --DESTROY sounds a bit aggressive for just closing a GUI...
+        end
+    end)
+end)
 
 script.on_event(defines.events.on_gui_value_changed, function(event) --TODO test in MP
     try_catch(function()
@@ -139,52 +143,56 @@ script.on_event(defines.events.on_gui_elem_changed, function(event) --TODO test 
         end
     end)
 end)
+-- #endregion --
 
+-- #region PLASMA ANIMATION FUNCTION --
 
+return function(reactor, unit_number, tick) --runs on_tick, per reactor
+    for player_index, sprite in pairs(reactor.guis.sprites) do
+        if sprite and sprite.valid and global.reactors[unit_number].systems == "right" then
+            local fs = global.reactors[unit_number].plasma_flow_speed
 
-script.on_event(defines.events.on_tick, function(event)
-    for unit_number, reactor in pairs(global.reactors) do
-        reactor_logic(reactor, event.tick)
-
-        for player_index, sprite in pairs(reactor.guis.sprites) do --plasma animation
-            if sprite and sprite.valid and global.reactors[unit_number].systems == "right" then
-                local fs = global.reactors[unit_number].plasma_flow_speed
-
-                if fs == 0 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]
-                elseif fs >= 99 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%27+3
-                elseif fs >= 95 and event.tick%2==0 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%27+3
-                elseif fs >= 85 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%28+2
-                elseif fs >= 75 and event.tick%2==0 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%28+2
-                elseif fs >= 50 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%29+1
-                else
-                    if (fs >= 25 and event.tick%2==0)
-                    or (fs >= 17 and event.tick%3==0)
-                    or (fs >= 12 and event.tick%4==0)
-                    or (fs >= 10 and event.tick%5==0)
-                    or (fs >=  8 and event.tick%6==0)
-                    or (fs >=  7 and event.tick%7==0)
-                    or (fs >=  6 and event.tick%8==0)
-                    or (fs >=  5 and event.tick%10==0)
-                    or (fs >=  4 and event.tick%12==0)
-                    or (fs >=  3 and event.tick%17==0)
-                    or (fs >=  2 and event.tick%25==0)
-                    or (fs >=  1 and event.tick%50==0)
-                    then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%29+1
-                    else fs = global.reactors[unit_number].guis.sprite_idxs[player_index] end
-                end
-
-                local ph = global.reactors[unit_number].plasma_temperature
-                if ph < 35 then ph = "min"
-                elseif ph < 75 then ph = "med-min"
-                elseif ph < 120 then ph = "med"
-                elseif ph < 170 then ph = "max-med"
-                else ph = "max"
-                end
-
-                sprite.sprite = "rf-gui-plasma-neutronic-"..ph.."-"..fs--..(event.tick%10+1)
-                --log(sprite.sprite)
-                global.reactors[unit_number].guis.sprite_idxs[player_index] = fs
+            -- #region SPEED CONTROL --
+            if fs == 0 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]
+            elseif fs >= 99 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%27+3
+            elseif fs >= 95 and tick%2==0 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%27+3
+            elseif fs >= 85 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%28+2
+            elseif fs >= 75 and tick%2==0 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%28+2
+            elseif fs >= 50 then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%29+1
+            else
+                if (fs >= 25 and tick%2==0)
+                or (fs >= 17 and tick%3==0)
+                or (fs >= 12 and tick%4==0)
+                or (fs >= 10 and tick%5==0)
+                or (fs >=  8 and tick%6==0)
+                or (fs >=  7 and tick%7==0)
+                or (fs >=  6 and tick%8==0)
+                or (fs >=  5 and tick%10==0)
+                or (fs >=  4 and tick%12==0)
+                or (fs >=  3 and tick%17==0)
+                or (fs >=  2 and tick%25==0)
+                or (fs >=  1 and tick%50==0)
+                then fs = global.reactors[unit_number].guis.sprite_idxs[player_index]%29+1
+                else fs = global.reactors[unit_number].guis.sprite_idxs[player_index] end
             end
+            -- #endregion --
+
+            -- #region BLOOM CONTROL --
+            local ph = global.reactors[unit_number].plasma_temperature
+            if ph < 35 then ph = "min"
+            elseif ph < 75 then ph = "med-min"
+            elseif ph < 120 then ph = "med"
+            elseif ph < 170 then ph = "max-med"
+            else ph = "max"
+            end
+            -- #endregion --
+
+            -- #region SWITCH CURRENT FRAME --
+            sprite.sprite = "rf-gui-plasma-neutronic-"..ph.."-"..fs--..(tick%10+1)
+            --log(sprite.sprite)
+            global.reactors[unit_number].guis.sprite_idxs[player_index] = fs
+            -- #endregion --
         end
     end
-end)
+end
+-- #endregion --

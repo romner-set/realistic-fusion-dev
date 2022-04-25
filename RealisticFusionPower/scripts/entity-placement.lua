@@ -1,3 +1,4 @@
+-- #region REGISTER REACTOR FUNCTION --
 
 local function register_new_reactor(unit_number, entity)
     global.reactors[unit_number] = {
@@ -40,10 +41,14 @@ local function register_new_reactor(unit_number, entity)
         guis = {sliders = {}, bars = {}, switches = {}, choice_elems = {}, sprites = {}, sprite_idxs = {}}
     }
 end
+-- #endregion --
 
+-- #region EVENT HANDLERS --
+
+-- #region ON REACTOR BUILT --
 script.on_event({defines.events.script_raised_built, defines.events.on_robot_built_entity, defines.events.on_built_entity}, function(event)
     try_catch(function()
-        if rfpower.reactors[event.created_entity.name] then
+        if rfpower.reactors[event.created_entity.name] then --TODO
             register_new_reactor(event.created_entity.unit_number, event.created_entity.prototype)
             event.created_entity.active = false
             --[[local name = "rf-reactor-controller"
@@ -102,7 +107,9 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
         end
     end)
 end)
+-- #endregion --
 
+-- #region ON REACTOR DESTROYED --
 script.on_event({
     defines.events.on_robot_mined_entity, defines.events.on_player_mined_entity,
     defines.events.script_raised_destroy, defines.events.on_entity_destroyed
@@ -121,3 +128,4 @@ script.on_event({
         end
     end)
 end)
+-- #endregion --

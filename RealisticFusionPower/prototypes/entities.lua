@@ -1,4 +1,4 @@
----- HC Exchanger and Turbine ----
+-- #region HIGH-CAPACITY EXCHANGER & TURBINE --
 if settings.startup["rf-hc-stuff"].value then
     local hc_hx = util.table.deepcopy(data.raw.boiler["heat-exchanger"])
     hc_hx.name = "rf-hc-exchanger"
@@ -25,9 +25,11 @@ if settings.startup["rf-hc-stuff"].value then
 
     data:extend{hc_hx, hc_t}
 end
+-- #endregion --
 
+-- #region DATA --
 data:extend{
-    -- Heat exchanger --
+    -- HEAT EXCHANGER --
     {
         name = "rf-heat-exchanger",
         type = "reactor",
@@ -122,7 +124,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Direct energy converter --
+    -- DIRECT ENERGY CONVERTER --
     {
         name = "rf-direct-energy-converter",
         type = "generator",
@@ -203,7 +205,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Neutronic reactor --
+    -- NEUTRONIC REACTOR --
     {
         type = "assembling-machine",
         name = "rf-reactor",
@@ -306,7 +308,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Aneutronic reactor --
+    -- ANEUTRONIC REACTOR --
     {
         type = "assembling-machine",
         name = "rf-reactor-aneutronic",
@@ -398,7 +400,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- Ion Cyclotron --
+    -- ION CYCLOTRON --
     {
         name = "rf-ion-cyclotron",
         type = "assembling-machine",
@@ -479,7 +481,7 @@ data:extend{
         se_allow_in_space = true
     },
 
-    -- ICF Laser --
+    -- ICF LASER --
     {
         type = "assembling-machine",
         name = "rf-icf-laser",
@@ -612,7 +614,7 @@ data:extend{
         },
     },
 
-    -- Neutronic ICF reactor --
+    -- #region NEUTRONIC ICF REACTOR --
     {
         type = "assembling-machine",
         name = "rf-reactor-icf",
@@ -845,8 +847,9 @@ data:extend{
             shift = util.by_pixel(15, 11)
         }]]
     },
+    -- #endregion --
 
-    -- Aneutronic ICF reactor --
+    -- #region ANEUTRONIC ICF REACTOR --
     {
         type = "assembling-machine",
         name = "rf-reactor-icf-aneutronic",
@@ -1019,15 +1022,19 @@ data:extend{
         maximum_temperature = 1000,
         effectivity = 1,
     },
+    -- #endregion --
 }
 
+-- #region NEUTRONIC ICF REACTOR --
 local icf_hx_south = table.deepcopy(data.raw.reactor["rf-reactor-icf-hx-north"])
 icf_hx_south.name = "rf-reactor-icf-hx-south"
 icf_hx_south.energy_source.fluid_box.pipe_connections = {{type = "input", position = {0, -2.5}}}
 local icf_hx_east = table.deepcopy(data.raw.reactor["rf-reactor-icf-hx-west"])
 icf_hx_east.name = "rf-reactor-icf-hx-east"
 icf_hx_east.energy_source.fluid_box.pipe_connections = {{type = "input", position = {-3, 0}}}
+-- #endregion --
 
+-- #region ANEUTRONIC ICF REACTOR --
 local aneutronic_icf_hx_south = table.deepcopy(data.raw.generator["rf-reactor-icf-aneutronic-hx-north"])
 aneutronic_icf_hx_south.name = "rf-reactor-icf-aneutronic-hx-south"
 aneutronic_icf_hx_south.fluid_box.pipe_connections = {{type = "input", position = {0, -2.5}}}
@@ -1035,3 +1042,6 @@ local aneutronic_icf_hx_east = table.deepcopy(data.raw.generator["rf-reactor-icf
 aneutronic_icf_hx_east.name = "rf-reactor-icf-aneutronic-hx-east"
 aneutronic_icf_hx_east.fluid_box.pipe_connections = {{type = "input", position = {-3, 0}}}
 data:extend{icf_hx_south, icf_hx_east, aneutronic_icf_hx_south, aneutronic_icf_hx_east}
+-- #endregion --
+
+-- #endregion --

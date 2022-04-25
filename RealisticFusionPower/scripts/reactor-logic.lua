@@ -1,4 +1,4 @@
---TODO TESTING CONSTANTS --
+-- #region --TODO TESTING CONSTANTS --
 local boltzmann_constant = 1.380649e-23 --J/K
 local k_per_ev = 11604.52500617
 local joules_per_ev = 1.6021773e-19
@@ -27,13 +27,14 @@ local reaction_energies = {               --J; seems to be slightly off (17.08Me
     ["He3-He3"] = (pm.He3+pm.He3 - pm.He4-pm.p-pm.p)*cs,
     ["T-He3"] = (pm.T+pm.He3 - pm.He4-pm.n-pm.p)*cs,
 }
---log(serpent.block(reaction_energies))
+-- #endregion --
 
+-- #region DATASETS --
 local datasets = require(".cross-section-data/DATASETS-reactivities")
 local dataset_sizes = {}
 local last_indexes = {}
 for k, v in pairs(datasets) do
-    dataset_sizes[k] = table_size(v)   --built-in Factorio function
+    dataset_sizes[k] = table_size(v) --https://lua-api.factorio.com/latest/Libraries.html
     last_indexes[k] = 5
     --log(k)
 
@@ -41,9 +42,12 @@ for k, v in pairs(datasets) do
         datasets[k][i][2] = _v[2]*reaction_energies[k]
     end
 end
+-- #endregion --
 
+-- #region FUNCTIONS --
+
+-- modified binary search for finding the nearest match in a given dataset
 local function binsearch(data, size, value)
-    --modified binary search
     local nearest_down,mid,nearest_up = 1,0,size
     while nearest_down <= nearest_up do
         mid = math.floor((nearest_down+nearest_up)/2)
@@ -64,7 +68,8 @@ local function binsearch(data, size, value)
     return nearest_down,nearest_up
 end
 
-local function estimate_sig(temperature, dataset)
+-- estimates reactivity based on the two closest point in a dataset
+local function estimate_r(temperature, dataset)
     local target_energy = (temperature*1e6)/k_per_ev
     local data = datasets[dataset]
     --local dataset_size = dataset_sizes[dataset]
@@ -115,8 +120,12 @@ local function update_gui_bar(reactor, name, max, unit, value)
         end
     end
 end
+-- #endregion --
 
-return function(reactor, current_tick)
+-- #region MAIN FUNCTION --
+
+return function(reactor, current_tick) --runs on_tick, per reactor
+    -- #region UPDATE PLASMA --
     local plasma_mass = reactor.total_plasma*plasma_volume*(0.18+0.27)/2
     for _,k in ipairs{"deuterium", "tritium", "helium_3"} do
         local old = reactor[k]
@@ -134,8 +143,10 @@ return function(reactor, current_tick)
             --reactor.plasma_temperature = reactor.plasma_temperature*(plasma_mass * 5920.5) --temp = energy/(mass*specific_heat)
         end
     end
+    --log(reactor.total_plasma)
+    -- #endregion --
     
-    --TODO TESTING VARIABLES --
+    -- #region --TODO TESTING VARIABLES --
     reactor.total_plasma = (reactor.deuterium + reactor.tritium + reactor.helium_3)/840
     --log(serpent.line{reactor.deuterium, reactor.tritium, reactor.helium_3})
     update_gui_bar(reactor, "total_plasma", 840, "m³", reactor.total_plasma*840)
@@ -143,24 +154,25 @@ return function(reactor, current_tick)
     local divertor_strength = max_divertor_strength*reactor.divertor_strength/100
     local max_particles = (1e20*plasma_volume)^2
     local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the reactor not produce any net energy
+    -- #endregion --
 
-    local fusion_energy = 0
-
-    --log(reactor.total_plasma)
     if reactor.total_plasma > 0 then
+-------- #region SIMULATE REACTIONS --------
+        local fusion_energy = 0
+
         if reactor.deuterium > 0 then
             local d_level = reactor.deuterium/plasma_volume
             local t_level = reactor.tritium/plasma_volume
             local he3_level = reactor.helium_3/plasma_volume
             --log(serpent.line{d_level, t_level, he3_level})
 
-            local dd_t_chance = estimate_sig(reactor.plasma_temperature, "D-D_T")*(d_level^2)
-            local dd_he3_chance = estimate_sig(reactor.plasma_temperature, "D-D_He3")*(d_level^2)
-            local dt_chance = estimate_sig(reactor.plasma_temperature, "D-T")*d_level*t_level
-            local dhe3_chance = estimate_sig(reactor.plasma_temperature, "D-He3")*d_level*he3_level
-            local tt_chance = estimate_sig(reactor.plasma_temperature, "T-T")*(t_level^2)
-            local the3_chance = estimate_sig(reactor.plasma_temperature, "T-He3")*t_level*he3_level
-            local he3he3_chance = estimate_sig(reactor.plasma_temperature, "He3-He3")*(he3_level^2)
+            local dd_t_chance = estimate_r(reactor.plasma_temperature, "D-D_T")*(d_level^2)
+            local dd_he3_chance = estimate_r(reactor.plasma_temperature, "D-D_He3")*(d_level^2)
+            local dt_chance = estimate_r(reactor.plasma_temperature, "D-T")*d_level*t_level
+            local dhe3_chance = estimate_r(reactor.plasma_temperature, "D-He3")*d_level*he3_level
+            local tt_chance = estimate_r(reactor.plasma_temperature, "T-T")*(t_level^2)
+            local the3_chance = estimate_r(reactor.plasma_temperature, "T-He3")*t_level*he3_level
+            local he3he3_chance = estimate_r(reactor.plasma_temperature, "He3-He3")*(he3_level^2)
 
             --log(serpent.block{dd_t_chance, dd_he3_chance, dt_chance, dhe3_chance, tt_chance, the3_chance, he3he3_chance})
 
@@ -196,52 +208,49 @@ return function(reactor, current_tick)
 
             --[[fusion_energy = max_particles*((
                     reactor.deuterium*(
-                        estimate_sig(reactor.plasma_temperature, "D-D_T")
-                    + estimate_sig(reactor.plasma_temperature, "D-D_He3")
+                        estimate_r(reactor.plasma_temperature, "D-D_T")
+                    + estimate_r(reactor.plasma_temperature, "D-D_He3")
                     )
-                    + reactor.tritium * estimate_sig(reactor.plasma_temperature, "D-T")
-                    + reactor.helium_3 * estimate_sig(reactor.plasma_temperature, "D-He3")
+                    + reactor.tritium * estimate_r(reactor.plasma_temperature, "D-T")
+                    + reactor.helium_3 * estimate_r(reactor.plasma_temperature, "D-He3")
                 )*reactor.deuterium
                 + reactor.tritium*(
-                    estimate_sig(reactor.plasma_temperature, "T-T")*reactor.tritium
-                + estimate_sig(reactor.plasma_temperature, "T-He3")*reactor.helium_3
+                    estimate_r(reactor.plasma_temperature, "T-T")*reactor.tritium
+                + estimate_r(reactor.plasma_temperature, "T-He3")*reactor.helium_3
                 )
-                + estimate_sig(reactor.plasma_temperature, "He3-He3")*reactor.helium_3^2
+                + estimate_r(reactor.plasma_temperature, "He3-He3")*reactor.helium_3^2
             )/(60*plasma_volume)]] --TODO m^3 to u
-        elseif reactor.tritium > 0 then
-            local e = estimate_sig(reactor.plasma_temperature, "T-T")*reactor.tritium
+        elseif reactor.tritium > 0 then --TODO
+            local e = estimate_r(reactor.plasma_temperature, "T-T")*reactor.tritium
             if reactor.helium_3 > 0 then
-                e = reactor.tritium*(e + estimate_sig(reactor.plasma_temperature, "T-He3")*reactor.helium_3)
-                + estimate_sig(reactor.plasma_temperature, "He3-He3")*reactor.helium_3^2
+                e = reactor.tritium*(e + estimate_r(reactor.plasma_temperature, "T-He3")*reactor.helium_3)
+                + estimate_r(reactor.plasma_temperature, "He3-He3")*reactor.helium_3^2
             end
             fusion_energy = e*max_particles/(60*plasma_volume)
-        elseif reactor.helium_3 > 0 then
-            local e = estimate_sig(reactor.plasma_temperature, "He3-He3")*reactor.helium_3
+        elseif reactor.helium_3 > 0 then --TODO
+            local e = estimate_r(reactor.plasma_temperature, "He3-He3")*reactor.helium_3
             if reactor.tritium > 0 then
-                e = reactor.helium_3*(e + estimate_sig(reactor.plasma_temperature, "T-He3"))
-                + estimate_sig(reactor.plasma_temperature, "T-T")*reactor.tritium^2
+                e = reactor.helium_3*(e + estimate_r(reactor.plasma_temperature, "T-He3"))
+                + estimate_r(reactor.plasma_temperature, "T-T")*reactor.tritium^2
             end
             fusion_energy = e*max_particles/(60*plasma_volume)
         end
 
-        if fusion_energy ~= fusion_energy or fusion_energy == -1/0 or fusion_energy == 1/0 then --math broke
+        if fusion_energy ~= fusion_energy or fusion_energy == -1/0 or fusion_energy == 1/0 then --math broke, just kinda happens sometimes
             fusion_energy = 0
         end
+-------- #endregion --------
 
-
-
-
-
-        --[[local fusion_factor = estimate_sig((reactor.plasma_temperature*1e6)/k_per_ev, datasets[recipe], dataset_sizes[recipe])-- *1.2e2
+        --[[local fusion_factor = estimate_r((reactor.plasma_temperature*1e6)/k_per_ev, datasets[recipe], dataset_sizes[recipe])-- *1.2e2
         if current_tick%math.ceil(30*math.random())==0 then
             fusion_factor = fusion_factor*(math.random()/8+0.9375)
             energy_loss = energy_loss*(math.random()+0.5)
         end
         local fusion_energy = (particle_count_in_plasma*fusion_factor*dt_energy*5e18)/60]]
-    
-    
+
+        -- #region OTHER SIMULATIONS --
         local energy_in = (current_heating + max_field_strength/100*reactor.magnetic_field_strength + divertor_strength/5)*60/1e6
-    
+
         if reactor.systems == "right" then
             energy_in = energy_in + systems_consumption*60/1e6
         else energy_loss = energy_loss*1.75 end
@@ -249,8 +258,8 @@ return function(reactor, current_tick)
             energy_in = energy_in + min_field_strength*60/1e6
         else
             energy_loss = energy_loss*3
-    
-            if reactor.plasma_temperature > 0.001 then --100kK
+
+            if reactor.plasma_temperature > 0.001 then
                 reactor.wall_integrity = reactor.wall_integrity - reactor.plasma_temperature/5
                 if reactor.wall_integrity < 0 then reactor.wall_integrity = 0 end
                 for idx, v in pairs(reactor.guis.bars) do
@@ -260,34 +269,38 @@ return function(reactor, current_tick)
                 end
             end
         end
-    
+        
+        local current_temp = reactor.plasma_temperature + (
+            current_heating
+            - reactor.plasma_temperature^energy_loss - reactor.plasma_temperature*energy_loss*2e4 --not realistic at all, but it seems to work well gameplay-wise
+            + fusion_energy*0.25
+        )/(plasma_mass*5920.5) --temp = energy/(mass*specific_heat)
+        if current_temp < 0 or current_temp ~= current_temp then current_temp = 0 end
+        --log(serpent.block{current_temp, reactor.plasma_temperature, plasma_mass})
+        -- #endregion --
+
+        -- #region UPDATE GUI --
         reactor.energy_input = math.floor(energy_in)
         update_gui_bar(reactor, "energy_input", 1000, "MW")
     
         reactor.energy_output = math.floor(fusion_energy*0.4*60/1e6)
         update_gui_bar(reactor, "energy_output", 1000, "MW")
     
-        local current_temp = reactor.plasma_temperature + (
-            current_heating
-            - reactor.plasma_temperature^energy_loss - reactor.plasma_temperature*energy_loss*2e4
-            + fusion_energy*0.25
-            --- divertor_strength
-        )/(plasma_mass*5920.5) --temp = energy/(mass*specific_heat)
-        if current_temp < 0 or current_temp ~= current_temp then current_temp = 0 end
-        --log(serpent.block{current_temp, reactor.plasma_temperature, plasma_mass})
         reactor.plasma_temperature = current_temp
         update_gui_bar(reactor, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
+        -- #endregion --
     
         --if fusion_energy ~= 0 then log(fusion_energy*60/1e6) end
         --if current_tick%60==0 then
             --game.print(reactor.wall_integrity)
             --game.print((reactor.plasma_temperature*1e6)/k_per_ev)
-            --game.print(serpent.line(estimate_sig((reactor.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
+            --game.print(serpent.line(estimate_r((reactor.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
             --game.print(serpent.line{particle_counts_in_plasma,  current_temp, (current_temp*1e6)/k_per_ev, reactor.fusion_rate, reactor.fusion_rate*60/1e6, energy_loss_per_MK*reactor.plasma_temperature*(math.math.random()+0.5)*60/1e6})
         --end
-    elseif current_tick%20==0 then
+    elseif current_tick%20==0 then --check if everything is at 0, make it so
         if reactor.plasma_temperature ~= 0 then reactor.plasma_temperature = 0; update_gui_bar(reactor, "plasma_temperature", 200, " M°C", 0) end
         if reactor.energy_input ~= 0 then reactor.energy_input = 0; update_gui_bar(reactor, "energy_input", 1000, "MW") end
         if reactor.energy_output ~= 0 then reactor.energy_output = 0; update_gui_bar(reactor, "energy_output", 1000, "MW") end
     end
 end
+-- #endregion --

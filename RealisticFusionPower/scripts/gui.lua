@@ -1,7 +1,5 @@
 --! TODO: Find a way to somehow make padding work properly on higher/lower resolutions, currently it's slightly off
-
-require("gui-events")
-rfpower.gui_name = "rf-fusion-reactor-control"
+rfpower.gui_name = "rf-fusion-reactor-control" --global constant
 
 -- #region FUNCTIONS --
 local function padding(element, height)
@@ -73,18 +71,22 @@ local function slider_progressbar(unit_number, element, name, k, suffix, padleft
 end
 -- #endregion --
 
+-- #region MAIN FUNCTION --
+
 script.on_event(defines.events.on_gui_opened, function(event)
     if event.gui_type == defines.gui_type.entity and event.entity.name == "rf-reactor" then
         try_catch(function()
             local player = game.get_player(event.player_index)
             if player.gui.screen[rfpower.gui_name] then player.opened = nil else
                 local un = event.entity.unit_number
+                -- #region INIT GLOBAL TABLE --
                 global.reactors[un].guis.sliders[event.player_index] = {}
                 global.reactors[un].guis.bars[event.player_index] = {}
                 global.reactors[un].guis.switches[event.player_index] = {}
                 global.reactors[un].guis.choice_elems[event.player_index] = {}
                 global.reactors[un].guis.sprites[event.player_index] = {}
                 global.reactors[un].guis.sprite_idxs[event.player_index] = 1
+                -- #endregion --
 
                 -- #region WINDOW --
                 local window = player.gui.screen.add{type="frame", name=rfpower.gui_name, direction="vertical", tags={unit_number=un}}
@@ -344,3 +346,4 @@ script.on_event(defines.events.on_gui_opened, function(event)
         end)
     end
 end)
+-- #endregion --

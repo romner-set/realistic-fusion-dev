@@ -1,3 +1,4 @@
+-- #region DATASETS --
 --local dd0energy    = {100, 115, 130, 140, 150, 160, 170, 180, 190, 200} --TODO
 local ddbreedingenergy = {200, 215, 230, 240, 205, 260, 270, 280, 290, 300} --TODO
 local ddenergy         = {400, 430, 460, 480, 500, 520, 540, 560, 580, 600} --TODO
@@ -9,10 +10,13 @@ local icfddenergy     = ddenergy --TODO
 local icfdtenergy     = dtenergy --TODO
 local icfhe3he3energy = he3he3energy --TODO
 local icfdhe3energy   = dhe3energy --TODO
+-- #endregion --
+
+-- #region DATA --
 
 local recipes = {}
 for i=1, 10 do
-    -- MCF --
+    -- #region MCF --
     table.insert(recipes, {
         type = "recipe",
         name = "rf-fusion-d-d-"..i-1,
@@ -157,8 +161,9 @@ for i=1, 10 do
         results = {{type = "fluid", name = "rf-aneutronic-fusion-results", amount = dhe3energy[i]}}, --D-He3 = ~5046.589MJ/u
         order = "A[realistic-fusion]-b[d-he3]-"..i-1
     })
+    -- #endregion --
 
-    -- ICF --
+    -- #region ICF --
     table.insert(recipes, {
         type = "recipe",
         name = "rf-icf-fusion-d-d-"..i-1,
@@ -245,8 +250,9 @@ for i=1, 10 do
         results = {{type = "fluid", name = "rf-aneutronic-fusion-results", amount = icfdhe3energy[i]}}, --D-He3 = ~5046.589MJ/u
         order = "A[realistic-fusion]-b[d-he3]-"..i-1
     })
+    -- #endregion --
 
-    -- Laser -- --TODO
+    -- #region LASER -- --TODO
     table.insert(recipes, {
         type = "recipe",
         name = "rf-icf-laser-"..i-1,
@@ -260,9 +266,10 @@ for i=1, 10 do
         results = {{type = "fluid", name = "rf-laser-photons", amount = 1000}}, --TODO
         order = "A[realistic-fusion]-b[d-he3]-"..i-1 --TODO
     })
+    -- #endregion --
 end
 
---- Tritium reheating ---
+-- #region TRITIUM REHEATING --
 for i=1, 5 do
     table.insert(recipes, { --TODO
         type = "recipe",
@@ -284,8 +291,9 @@ for i=1, 5 do
         order = "A[realistic-fusion]-b[d-t]-"..i-1 --TODO
     })
 end
+-- #endregion --
 
---- Cyclotron --- --TODO
+-- #region Cyclotron -- --TODO
 local prefixes = {"-heliated", "", "-tritiated", ""}
 local overlays = {
     {icon = "__RealisticFusionCore__/graphics/icons/helium-3-plasma.png", icon_size = 64, scale = 0.25, shift = {-10,8}},
@@ -336,3 +344,6 @@ for i=1, 2 do
     })
 end
 data:extend(recipes)
+-- #endregion --
+
+-- #endregion --

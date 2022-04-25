@@ -1,3 +1,4 @@
+-- #region DATA --
 data:extend{
     {
         type = "recipe",
@@ -120,8 +121,9 @@ data:extend{
         enabled = true--[[CHANGELATER]]
     },
 }
+-- #endregion --
 
---- HC Exchanger and Turbine ---
+-- #region HIGH-CAPACITY EXCHANGER & TURBINE --
 if settings.startup["rf-hc-stuff"].value then
     data:extend{
         {
@@ -142,3 +144,4 @@ if settings.startup["rf-hc-stuff"].value then
         }
     }
 end
+-- #endregion --
