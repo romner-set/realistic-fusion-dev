@@ -1,7 +1,7 @@
 data:extend{
     {
         type = "recipe",
-        name = "rf-heater",
+        name = "rf-m-heater",
         icon = "__RealisticFusionCore__/graphics/icons/heater.png",
         icon_size = 64,
         energy_required = 20,
@@ -13,7 +13,7 @@ data:extend{
 			{"concrete", 200},
 			{"plastic-bar", 500}
         },
-        result = "rf-heater",
+        result = "rf-m-heater",
         enabled = true--[[CHANGELATER]]
     },
     {
@@ -35,7 +35,7 @@ data:extend{
     },
 	{
 		type = "recipe",
-		name = "rf-magnetic-pipe",
+		name = "rf-m-magnetic-pipe",
 		icon = "__RealisticFusionCore__/graphics/icons/magnetic-pipe.png",
         icon_size = 64, icon_mipmaps = 4,
 		energy_required = 0.5,
@@ -46,12 +46,12 @@ data:extend{
             {"plastic-bar", 10},
             {"copper-cable", 10}
 		},
-		result = "rf-magnetic-pipe",
+		result = "rf-m-magnetic-pipe",
         enabled = true--[[CHANGELATER]]
 	},
 	{
 		type = "recipe",
-		name = "rf-magnetic-pipe-to-ground",
+		name = "rf-m-magnetic-pipe-to-ground",
 		icon = "__RealisticFusionCore__/graphics/icons/magnetic-pipe-to-ground.png",
         icon_size = 64, icon_mipmaps = 4,
 		energy_required = 0.5,
@@ -64,12 +64,12 @@ data:extend{
             {"copper-cable", 80}
 		},
 		result_count = 2,
-		result = "rf-magnetic-pipe-to-ground",
+		result = "rf-m-magnetic-pipe-to-ground",
         enabled = true--[[CHANGELATER]]
 	},
 	{
 		type = "recipe",
-		name = "rf-magnetic-pump",
+		name = "rf-m-magnetic-pump",
 		energy_required = 2,
 		icon = "__RealisticFusionCore__/graphics/icons/magnetic-pump.png",
         icon_size = 64, icon_mipmaps = 4,
@@ -82,7 +82,7 @@ data:extend{
 			{"plastic-bar", 50},
             {"copper-cable", 30}
 		},
-		result = "rf-magnetic-pump",
+		result = "rf-m-magnetic-pump",
         enabled = true--[[CHANGELATER]]
     },
     {

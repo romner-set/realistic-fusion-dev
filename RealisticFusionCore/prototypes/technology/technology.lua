@@ -159,7 +159,7 @@ data:extend{
         },
         prerequisites = {"rf-plasma-handling", "rf-deuterium-extraction"},
         effects = {
-            {type = "unlock-recipe", recipe = "rf-heater"},
+            {type = "unlock-recipe", recipe = "rf-m-heater"},
             {type = "unlock-recipe", recipe = "rf-d-d-heating-4"}
         },
         localised_description = {"rf.d-d-heating", "rf-deuterium"}

@@ -57,11 +57,11 @@ data:extend{
     -- #region MAGNETIC PIPES AND PUMP --
     {
         type = "pipe",
-        name = "rf-magnetic-pipe",
+        name = "rf-m-magnetic-pipe",
         icon = "__base__/graphics/icons/pipe.png", --TODO
         icon_size = 64, icon_mipmaps = 4,
         flags = {"placeable-neutral", "player-creation"},
-        minable = {mining_time = 0.1, result = "rf-magnetic-pipe"},
+        minable = {mining_time = 0.1, result = "rf-m-magnetic-pipe"},
         max_health = 500,
         corpse = "pipe-remnants", --TODO
         dying_explosion = "pipe-explosion",
@@ -111,11 +111,11 @@ data:extend{
 
     {
         type = "pipe-to-ground",
-        name = "rf-magnetic-pipe-to-ground",
+        name = "rf-m-magnetic-pipe-to-ground",
         icon = "__base__/graphics/icons/pipe-to-ground.png", --TODO
         icon_size = 64, icon_mipmaps = 4,
         flags = {"placeable-neutral", "player-creation"},
-        minable = {mining_time = 0.1, result = "rf-magnetic-pipe-to-ground"},
+        minable = {mining_time = 0.1, result = "rf-m-magnetic-pipe-to-ground"},
         max_health = 150,
         corpse = "pipe-to-ground-remnants", --TODO
         dying_explosion = "pipe-to-ground-explosion",
@@ -163,11 +163,11 @@ data:extend{
 
     {
         type = "pump",
-        name = "rf-magnetic-pump",
+        name = "rf-m-magnetic-pump",
         icon = "__base__/graphics/icons/pump.png", --TODO
         icon_size = 64, icon_mipmaps = 4,
         flags = {"placeable-neutral", "player-creation"},
-        minable = {mining_time = 0.2, result = "rf-magnetic-pump"},
+        minable = {mining_time = 0.2, result = "rf-m-magnetic-pump"},
         max_health = 180,
         fast_replaceable_group = "pipe",
         corpse = "pump-remnants", --TODO
@@ -228,7 +228,7 @@ data:extend{
     -- PLASMA HEATER --
     {
         type = "assembling-machine",
-        name = "rf-heater",
+        name = "rf-m-heater",
         icon = "__RealisticFusionCore__/graphics/icons/heater.png",
         icon_size = 64,
         max_health = 1000,
@@ -241,7 +241,7 @@ data:extend{
         collision_box = {{-4.25, -4.25}, {4.25, 4.25}},
         selection_box = {{-4.5, -4.5}, {4.5, 4.5}},
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "player-creation", "not-flammable", "not-upgradable"},
-        minable = {mining_time = 1.5, result= "rf-heater"},
+        minable = {mining_time = 1.5, result= "rf-m-heater"},
         crafting_categories = {"rf-heating"},
         crafting_speed = 1,
         scale_entity_info_icon = true,

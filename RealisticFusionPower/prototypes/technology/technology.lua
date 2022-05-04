@@ -18,7 +18,7 @@ data:extend{
         },
         prerequisites = {"rf-fusion-theory", "rf-plasma-handling", "production-science-pack"},
         effects = {
-            {type = "unlock-recipe", recipe = "rf-reactor"},
+            {type = "unlock-recipe", recipe = "rf-m-reactor"},
         },
     },
     {
@@ -104,7 +104,7 @@ data:extend{
     },
     {
         type = "technology",
-        name = "rf-reactor-aneutronic",
+        name = "rf-m-reactor-aneutronic",
         icon = "__RealisticFusionPower__/graphics/technology/reactor-aneutronic.png",
         icon_size = 128,
         unit = {
@@ -120,7 +120,7 @@ data:extend{
         },
         prerequisites = {"rf-fusion-aneutronic-theory"},
         effects = {
-            {type = "unlock-recipe", recipe = "rf-reactor-aneutronic"}
+            {type = "unlock-recipe", recipe = "rf-m-reactor-aneutronic"}
         },
     },
     {
@@ -139,7 +139,7 @@ data:extend{
                 {"utility-science-pack", 1}
             }
         },
-        prerequisites = {"rf-reactor-aneutronic"},
+        prerequisites = {"rf-m-reactor-aneutronic"},
         effects = {
             {type = "unlock-recipe", recipe = "rf-direct-energy-converter"}
         },

@@ -30,16 +30,14 @@ local reaction_energies = {               --J; seems to be slightly off (17.08Me
 -- #endregion --
 
 -- #region DATASETS --
-local datasets = require(".cross-section-data/DATASETS-reactivities")
-local dataset_sizes = {}
-local last_indexes = {}
-for k, v in pairs(datasets) do
-    dataset_sizes[k] = table_size(v) --https://lua-api.factorio.com/latest/Libraries.html
-    last_indexes[k] = 5
+rfp_datasets = require(".cross-section-data/datasets-reactivities") --global constants
+rfp_dataset_sizes = {}
+for k, v in pairs(rfp_datasets) do
+    rfp_dataset_sizes[k] = table_size(v) --https://lua-api.factorio.com/latest/Libraries.html
     --log(k)
 
     for i, _v in ipairs(v) do --premultiply reactivities to reduce runtime cost
-        datasets[k][i][2] = _v[2]*reaction_energies[k]
+        rfp_datasets[k][i][2] = _v[2]*reaction_energies[k]
     end
 end
 -- #endregion --
@@ -68,35 +66,36 @@ local function binsearch(data, size, value)
     return nearest_down,nearest_up
 end
 
--- estimates reactivity based on the two closest point in a dataset
-local function estimate_r(temperature, dataset)
+-- estimates reactivity based on the two closest points in a dataset
+local function estimate_r(temperature, dataset, network_id)
+    local last_index = global.networks[network_id].cached_reactivity[dataset]
     local target_energy = (temperature*1e6)/k_per_ev
-    local data = datasets[dataset]
-    --local dataset_size = dataset_sizes[dataset]
-    local nearest_down,nearest_up = last_indexes[dataset],last_indexes[dataset]+1
+    local data = rfp_datasets[dataset]
+    --local dataset_size = rfp_dataset_sizes[dataset]
+    local nearest_down,nearest_up = last_index,last_index+1
 
     if data[nearest_down][1] > target_energy then
         if nearest_down > 1 then
             if data[nearest_down-1][1] > target_energy then --data way off
-                nearest_down,nearest_up = binsearch(data, dataset_sizes[dataset], target_energy)
-                last_indexes[dataset] = nearest_down
+                nearest_down,nearest_up = binsearch(data, rfp_dataset_sizes[dataset], target_energy)
+                last_index = nearest_down
                 if nearest_down == nearest_up then return data[nearest_down][2] end
             else
                 nearest_up = nearest_down
                 nearest_down = nearest_down-1
-                last_indexes[dataset] = nearest_down
+                last_index = nearest_down
             end
         end
     elseif data[nearest_up][1] < target_energy then
-        if nearest_down < dataset_sizes[dataset]-1 then
+        if nearest_down < rfp_dataset_sizes[dataset]-1 then
             if data[nearest_up+1][1] < target_energy then --data way off
-                nearest_down,nearest_up = binsearch(data, dataset_sizes[dataset], target_energy)
-                last_indexes[dataset] = nearest_down
+                nearest_down,nearest_up = binsearch(data, rfp_dataset_sizes[dataset], target_energy)
+                last_index = nearest_down
                 if nearest_down == nearest_up then return data[nearest_down][2] end
             else
                 nearest_down = nearest_up
                 nearest_up = nearest_up+1
-                last_indexes[dataset] = nearest_down
+                last_index = nearest_down
             end
         end
     else return data[nearest_up][2] end
@@ -108,10 +107,10 @@ local function estimate_r(temperature, dataset)
     return ((target_energy - nearest_down_e)/(data[nearest_up][1] - nearest_down_e)) * (data[nearest_up][2] - nearest_down_sig) + nearest_down_sig
 end
 
-local function update_gui_bar(reactor, name, max, unit, value)
-    if reactor.systems == "right" then
-        value = value or reactor[name]
-        for idx, v in pairs(reactor.guis.bars) do
+local function update_gui_bar(network, name, max, unit, value)
+    if network.systems == "right" then
+        value = value or network[name]
+        for idx, v in pairs(network.guis.bars) do
             local new_name = name:gsub("_","-")
             if v[new_name] and v[new_name].valid then
                 v[new_name].value = value/max
@@ -124,55 +123,55 @@ end
 
 -- #region MAIN FUNCTION --
 
-return function(reactor, current_tick) --runs on_tick, per reactor
+return function(network, current_tick) --runs on_tick, per network
     -- #region UPDATE PLASMA --
-    local plasma_mass = reactor.total_plasma*plasma_volume*(0.18+0.27)/2
+    local plasma_mass = network.total_plasma*plasma_volume*(0.18+0.27)/2
     for _,k in ipairs{"deuterium", "tritium", "helium_3"} do
-        local old = reactor[k]
-        if reactor.total_plasma <= 0.952 and reactor[k.."_input"] > 0 then
-            reactor[k] = (reactor[k] + reactor[k.."_input"]/10)
+        local old = network[k]
+        if network.total_plasma <= 0.95 and network[k.."_input"] > 0 then
+            network[k] = (network[k] + network[k.."_input"]/10)
         end
-        if reactor[k] > 0 and reactor[k.."_removal"] > 0 then
-            reactor[k] = reactor[k] - reactor[k.."_removal"]/10
+        if network[k] > 0 and network[k.."_removal"] > 0 then
+            network[k] = network[k] - network[k.."_removal"]/10
         end
 
-        if old ~= reactor[k] then
-            if reactor[k] < 0 then reactor[k] = 0
-            elseif reactor[k] > 800 then reactor[k] = 800 end
-            update_gui_bar(reactor, k, 840, "m³")
-            --reactor.plasma_temperature = reactor.plasma_temperature*(plasma_mass * 5920.5) --temp = energy/(mass*specific_heat)
+        if old ~= network[k] then
+            if network[k] < 0 then network[k] = 0
+            elseif network[k] > 800 then network[k] = 800 end
+            update_gui_bar(network, k, 840, "m³")
+            --network.plasma_temperature = network.plasma_temperature*(plasma_mass * 5920.5) --temp = energy/(mass*specific_heat)
         end
     end
-    --log(reactor.total_plasma)
+    --log(network.total_plasma)
     -- #endregion --
     
     -- #region --TODO TESTING VARIABLES --
-    reactor.total_plasma = (reactor.deuterium + reactor.tritium + reactor.helium_3)/840
-    --log(serpent.line{reactor.deuterium, reactor.tritium, reactor.helium_3})
-    update_gui_bar(reactor, "total_plasma", 840, "m³", reactor.total_plasma*840)
-    local current_heating = max_heating/100*reactor.plasma_heating
-    local divertor_strength = max_divertor_strength*reactor.divertor_strength/100
+    network.total_plasma = (network.deuterium + network.tritium + network.helium_3)/840
+    --log(serpent.line{network.deuterium, network.tritium, network.helium_3})
+    update_gui_bar(network, "total_plasma", 840, "m³", network.total_plasma*840)
+    local current_heating = max_heating/100*network.plasma_heating
+    local divertor_strength = max_divertor_strength*network.divertor_strength/100
     local max_particles = (1e20*plasma_volume)^2
-    local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the reactor not produce any net energy
+    local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the network not produce any net energy
     -- #endregion --
 
-    if reactor.total_plasma > 0 then
+    if network.total_plasma > 0 then
 -------- #region SIMULATE REACTIONS --------
         local fusion_energy = 0
 
-        if reactor.deuterium > 0 then
-            local d_level = reactor.deuterium/plasma_volume
-            local t_level = reactor.tritium/plasma_volume
-            local he3_level = reactor.helium_3/plasma_volume
+        if network.deuterium > 0 then
+            local d_level = network.deuterium/plasma_volume
+            local t_level = network.tritium/plasma_volume
+            local he3_level = network.helium_3/plasma_volume
             --log(serpent.line{d_level, t_level, he3_level})
 
-            local dd_t_chance = estimate_r(reactor.plasma_temperature, "D-D_T")*(d_level^2)
-            local dd_he3_chance = estimate_r(reactor.plasma_temperature, "D-D_He3")*(d_level^2)
-            local dt_chance = estimate_r(reactor.plasma_temperature, "D-T")*d_level*t_level
-            local dhe3_chance = estimate_r(reactor.plasma_temperature, "D-He3")*d_level*he3_level
-            local tt_chance = estimate_r(reactor.plasma_temperature, "T-T")*(t_level^2)
-            local the3_chance = estimate_r(reactor.plasma_temperature, "T-He3")*t_level*he3_level
-            local he3he3_chance = estimate_r(reactor.plasma_temperature, "He3-He3")*(he3_level^2)
+            local dd_t_chance = estimate_r(network.plasma_temperature, "D-D_T")*(d_level^2)
+            local dd_he3_chance = estimate_r(network.plasma_temperature, "D-D_He3")*(d_level^2)
+            local dt_chance = estimate_r(network.plasma_temperature, "D-T")*d_level*t_level
+            local dhe3_chance = estimate_r(network.plasma_temperature, "D-He3")*d_level*he3_level
+            local tt_chance = estimate_r(network.plasma_temperature, "T-T")*(t_level^2)
+            local the3_chance = estimate_r(network.plasma_temperature, "T-He3")*t_level*he3_level
+            local he3he3_chance = estimate_r(network.plasma_temperature, "He3-He3")*(he3_level^2)
 
             --log(serpent.block{dd_t_chance, dd_he3_chance, dt_chance, dhe3_chance, tt_chance, the3_chance, he3he3_chance})
 
@@ -195,43 +194,43 @@ return function(reactor, current_tick) --runs on_tick, per reactor
 
             --log(serpent.line{d_loss*2e34, t_loss*2e34, he3_loss*2e34})
 
-            reactor.deuterium = reactor.deuterium - d_loss*2e34
-            reactor.tritium = reactor.tritium - t_loss*2e34
-            reactor.helium_3 = reactor.helium_3 - he3_loss*2e34
-            if reactor.deuterium < 0 then reactor.deuterium = 0 end
-            if reactor.tritium < 0 then reactor.tritium = 0 end
-            if reactor.helium_3 < 0 then reactor.helium_3 = 0 end
+            network.deuterium = network.deuterium - d_loss*2e34
+            network.tritium = network.tritium - t_loss*2e34
+            network.helium_3 = network.helium_3 - he3_loss*2e34
+            if network.deuterium < 0 then network.deuterium = 0 end
+            if network.tritium < 0 then network.tritium = 0 end
+            if network.helium_3 < 0 then network.helium_3 = 0 end
             
-            update_gui_bar(reactor, "deuterium", 840, "m³", math.floor(reactor.deuterium*1000)/1000)
-            update_gui_bar(reactor, "tritium", 840, "m³", math.floor(reactor.tritium*1000)/1000)
-            update_gui_bar(reactor, "helium_3", 840, "m³", math.floor(reactor.helium_3*1000)/1000)
+            update_gui_bar(network, "deuterium", 840, "m³", math.floor(network.deuterium*1000)/1000)
+            update_gui_bar(network, "tritium", 840, "m³", math.floor(network.tritium*1000)/1000)
+            update_gui_bar(network, "helium_3", 840, "m³", math.floor(network.helium_3*1000)/1000)
 
             --[[fusion_energy = max_particles*((
-                    reactor.deuterium*(
-                        estimate_r(reactor.plasma_temperature, "D-D_T")
-                    + estimate_r(reactor.plasma_temperature, "D-D_He3")
+                    network.deuterium*(
+                        estimate_r(network.plasma_temperature, "D-D_T")
+                    + estimate_r(network.plasma_temperature, "D-D_He3")
                     )
-                    + reactor.tritium * estimate_r(reactor.plasma_temperature, "D-T")
-                    + reactor.helium_3 * estimate_r(reactor.plasma_temperature, "D-He3")
-                )*reactor.deuterium
-                + reactor.tritium*(
-                    estimate_r(reactor.plasma_temperature, "T-T")*reactor.tritium
-                + estimate_r(reactor.plasma_temperature, "T-He3")*reactor.helium_3
+                    + network.tritium * estimate_r(network.plasma_temperature, "D-T")
+                    + network.helium_3 * estimate_r(network.plasma_temperature, "D-He3")
+                )*network.deuterium
+                + network.tritium*(
+                    estimate_r(network.plasma_temperature, "T-T")*network.tritium
+                + estimate_r(network.plasma_temperature, "T-He3")*network.helium_3
                 )
-                + estimate_r(reactor.plasma_temperature, "He3-He3")*reactor.helium_3^2
+                + estimate_r(network.plasma_temperature, "He3-He3")*network.helium_3^2
             )/(60*plasma_volume)]] --TODO m^3 to u
-        elseif reactor.tritium > 0 then --TODO
-            local e = estimate_r(reactor.plasma_temperature, "T-T")*reactor.tritium
-            if reactor.helium_3 > 0 then
-                e = reactor.tritium*(e + estimate_r(reactor.plasma_temperature, "T-He3")*reactor.helium_3)
-                + estimate_r(reactor.plasma_temperature, "He3-He3")*reactor.helium_3^2
+        elseif network.tritium > 0 then --TODO
+            local e = estimate_r(network.plasma_temperature, "T-T")*network.tritium
+            if network.helium_3 > 0 then
+                e = network.tritium*(e + estimate_r(network.plasma_temperature, "T-He3")*network.helium_3)
+                + estimate_r(network.plasma_temperature, "He3-He3")*network.helium_3^2
             end
             fusion_energy = e*max_particles/(60*plasma_volume)
-        elseif reactor.helium_3 > 0 then --TODO
-            local e = estimate_r(reactor.plasma_temperature, "He3-He3")*reactor.helium_3
-            if reactor.tritium > 0 then
-                e = reactor.helium_3*(e + estimate_r(reactor.plasma_temperature, "T-He3"))
-                + estimate_r(reactor.plasma_temperature, "T-T")*reactor.tritium^2
+        elseif network.helium_3 > 0 then --TODO
+            local e = estimate_r(network.plasma_temperature, "He3-He3")*network.helium_3
+            if network.tritium > 0 then
+                e = network.helium_3*(e + estimate_r(network.plasma_temperature, "T-He3"))
+                + estimate_r(network.plasma_temperature, "T-T")*network.tritium^2
             end
             fusion_energy = e*max_particles/(60*plasma_volume)
         end
@@ -241,7 +240,7 @@ return function(reactor, current_tick) --runs on_tick, per reactor
         end
 -------- #endregion --------
 
-        --[[local fusion_factor = estimate_r((reactor.plasma_temperature*1e6)/k_per_ev, datasets[recipe], dataset_sizes[recipe])-- *1.2e2
+        --[[local fusion_factor = estimate_r((network.plasma_temperature*1e6)/k_per_ev, rfp_datasets[recipe], rfp_dataset_sizes[recipe])-- *1.2e2
         if current_tick%math.ceil(30*math.random())==0 then
             fusion_factor = fusion_factor*(math.random()/8+0.9375)
             energy_loss = energy_loss*(math.random()+0.5)
@@ -249,58 +248,58 @@ return function(reactor, current_tick) --runs on_tick, per reactor
         local fusion_energy = (particle_count_in_plasma*fusion_factor*dt_energy*5e18)/60]]
 
         -- #region OTHER SIMULATIONS --
-        local energy_in = (current_heating + max_field_strength/100*reactor.magnetic_field_strength + divertor_strength/5)*60/1e6
+        local energy_in = (current_heating + max_field_strength/100*network.magnetic_field_strength + divertor_strength/5)*60/1e6
 
-        if reactor.systems == "right" then
+        if network.systems == "right" then
             energy_in = energy_in + systems_consumption*60/1e6
         else energy_loss = energy_loss*1.75 end
-        if reactor.magnetic_field == "right" then
+        if network.magnetic_field == "right" then
             energy_in = energy_in + min_field_strength*60/1e6
         else
             energy_loss = energy_loss*3
 
-            if reactor.plasma_temperature > 0.001 then
-                reactor.wall_integrity = reactor.wall_integrity - reactor.plasma_temperature/5
-                if reactor.wall_integrity < 0 then reactor.wall_integrity = 0 end
-                for idx, v in pairs(reactor.guis.bars) do
+            if network.plasma_temperature > 0.001 then
+                network.wall_integrity = network.wall_integrity - network.plasma_temperature/5
+                if network.wall_integrity < 0 then network.wall_integrity = 0 end
+                for idx, v in pairs(network.guis.bars) do
                     if v["wall-integrity"] and v["wall-integrity"].valid then
-                        v["wall-integrity"].value = reactor.wall_integrity/100
+                        v["wall-integrity"].value = network.wall_integrity/100
                     end
                 end
             end
         end
         
-        local current_temp = reactor.plasma_temperature + (
+        local current_temp = network.plasma_temperature + (
             current_heating
-            - reactor.plasma_temperature^energy_loss - reactor.plasma_temperature*energy_loss*2e4 --not realistic at all, but it seems to work well gameplay-wise
+            - network.plasma_temperature^energy_loss - network.plasma_temperature*energy_loss*2e4 --not realistic at all, but it seems to work well gameplay-wise
             + fusion_energy*0.25
         )/(plasma_mass*5920.5) --temp = energy/(mass*specific_heat)
         if current_temp < 0 or current_temp ~= current_temp then current_temp = 0 end
-        --log(serpent.block{current_temp, reactor.plasma_temperature, plasma_mass})
+        --log(serpent.block{current_temp, network.plasma_temperature, plasma_mass})
         -- #endregion --
 
         -- #region UPDATE GUI --
-        reactor.energy_input = math.floor(energy_in)
-        update_gui_bar(reactor, "energy_input", 1000, "MW")
+        network.energy_input = math.floor(energy_in)
+        update_gui_bar(network, "energy_input", 1000, "MW")
     
-        reactor.energy_output = math.floor(fusion_energy*0.4*60/1e6)
-        update_gui_bar(reactor, "energy_output", 1000, "MW")
+        network.energy_output = math.floor(fusion_energy*0.4*60/1e6)
+        update_gui_bar(network, "energy_output", 1000, "MW")
     
-        reactor.plasma_temperature = current_temp
-        update_gui_bar(reactor, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
+        network.plasma_temperature = current_temp
+        update_gui_bar(network, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
         -- #endregion --
     
         --if fusion_energy ~= 0 then log(fusion_energy*60/1e6) end
         --if current_tick%60==0 then
-            --game.print(reactor.wall_integrity)
-            --game.print((reactor.plasma_temperature*1e6)/k_per_ev)
-            --game.print(serpent.line(estimate_r((reactor.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
-            --game.print(serpent.line{particle_counts_in_plasma,  current_temp, (current_temp*1e6)/k_per_ev, reactor.fusion_rate, reactor.fusion_rate*60/1e6, energy_loss_per_MK*reactor.plasma_temperature*(math.math.random()+0.5)*60/1e6})
+            --game.print(network.wall_integrity)
+            --game.print((network.plasma_temperature*1e6)/k_per_ev)
+            --game.print(serpent.line(estimate_r((network.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
+            --game.print(serpent.line{particle_counts_in_plasma,  current_temp, (current_temp*1e6)/k_per_ev, network.fusion_rate, network.fusion_rate*60/1e6, energy_loss_per_MK*network.plasma_temperature*(math.math.random()+0.5)*60/1e6})
         --end
     elseif current_tick%20==0 then --check if everything is at 0, make it so
-        if reactor.plasma_temperature ~= 0 then reactor.plasma_temperature = 0; update_gui_bar(reactor, "plasma_temperature", 200, " M°C", 0) end
-        if reactor.energy_input ~= 0 then reactor.energy_input = 0; update_gui_bar(reactor, "energy_input", 1000, "MW") end
-        if reactor.energy_output ~= 0 then reactor.energy_output = 0; update_gui_bar(reactor, "energy_output", 1000, "MW") end
+        if network.plasma_temperature ~= 0 then network.plasma_temperature = 0; update_gui_bar(network, "plasma_temperature", 200, " M°C", 0) end
+        if network.energy_input ~= 0 then network.energy_input = 0; update_gui_bar(network, "energy_input", 1000, "MW") end
+        if network.energy_output ~= 0 then network.energy_output = 0; update_gui_bar(network, "energy_output", 1000, "MW") end
     end
 end
 -- #endregion --

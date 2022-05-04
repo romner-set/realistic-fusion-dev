@@ -2,7 +2,7 @@
 data:extend{
     {
         type = "recipe",
-        name = "rf-reactor",
+        name = "rf-m-reactor",
         icon = "__RealisticFusionPower__/graphics/icons/reactor.png",
         icon_size = 64,
         energy_required = 15,
@@ -14,12 +14,12 @@ data:extend{
 			{"stone-brick", 5000},
 			{"plastic-bar", 1000}
         },
-        result = "rf-reactor",
+        result = "rf-m-reactor",
         enabled = true--[[CHANGELATER]]
     },
     {
         type = "recipe",
-        name = "rf-reactor-aneutronic",
+        name = "rf-m-reactor-aneutronic",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-aneutronic.png",
         icon_size = 64,
         energy_required = 30,
@@ -31,7 +31,7 @@ data:extend{
 			{"concrete", 5000},
 			{"plastic-bar", 1000},
         },
-        result = "rf-reactor-aneutronic",
+        result = "rf-m-reactor-aneutronic",
         enabled = true--[[CHANGELATER]]
     },
     {
@@ -88,7 +88,7 @@ data:extend{
     },
     {
         type = "recipe",
-        name = "rf-reactor-icf",
+        name = "rf-m-reactor-icf",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf.png",
         icon_size = 64,
         energy_required = 15,
@@ -100,12 +100,12 @@ data:extend{
 			{"stone-brick", 5000},
 			{"plastic-bar", 1000}
         },
-        result = "rf-reactor-icf",
+        result = "rf-m-reactor-icf",
         enabled = true--[[CHANGELATER]]
     },
     {
         type = "recipe",
-        name = "rf-reactor-icf-aneutronic",
+        name = "rf-m-reactor-icf-aneutronic",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf-aneutronic.png",
         icon_size = 64,
         energy_required = 30,
@@ -117,7 +117,7 @@ data:extend{
 			{"concrete", 5000},
 			{"plastic-bar", 1000},
         },
-        result = "rf-reactor-icf-aneutronic",
+        result = "rf-m-reactor-icf-aneutronic",
         enabled = true--[[CHANGELATER]]
     },
 }

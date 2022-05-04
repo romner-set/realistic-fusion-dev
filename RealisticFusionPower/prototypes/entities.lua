@@ -208,7 +208,7 @@ data:extend{
     -- NEUTRONIC REACTOR --
     {
         type = "assembling-machine",
-        name = "rf-reactor",
+        name = "rf-m-reactor",
         icon = "__RealisticFusionPower__/graphics/icons/reactor.png",
         icon_size = 64,
         max_health = 5000,
@@ -219,7 +219,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 15, tile_height = 15,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "player-creation", "not-flammable", "not-upgradable"},
-        minable = {mining_time = 5, result= "rf-reactor"},
+        minable = {mining_time = 5, result= "rf-m-reactor"},
         working_sound = {
             sound = {
                 filename = "__RealisticFusionPower__/sounds/reactor-running.ogg",
@@ -253,7 +253,7 @@ data:extend{
                     {type = "output", position = {1, 8}}
                 },
                 production_type = "output",
-                filter = "rf-tritium"--"rf-helium-3"
+                filter = "rf-tritium",--"rf-helium-3"
             },
             {
                 base_level = -1,
@@ -264,11 +264,34 @@ data:extend{
                     scale = 1.1,
                     shift = util.by_pixel(-1, 1)
                 },
-                pipe_connections = {
-                    {type = "input", position = {-8, -1}},
-                    {type = "input", position = {-8, 1}},
-                    {type = "input", position = {-8, 3}}
+                pipe_connections = {{type = "input", position = {-8, -1}}},
+                filter = "rf-deuterium-plasma",
+                production_type = "input"
+            },
+            {
+                base_level = -1,
+                base_area = 1,
+                pipe_covers = {
+                    filename = "__RealisticFusionCore__/graphics/entities/heater-pipe-cover.png",
+                    size = 64,
+                    scale = 1.1,
+                    shift = util.by_pixel(-1, 1)
                 },
+                pipe_connections = {{type = "input", position = {-8, 1}}},
+                filter = "rf-tritium-plasma",
+                production_type = "input"
+            },
+            {
+                base_level = -1,
+                base_area = 1,
+                pipe_covers = {
+                    filename = "__RealisticFusionCore__/graphics/entities/heater-pipe-cover.png",
+                    size = 64,
+                    scale = 1.1,
+                    shift = util.by_pixel(-1, 1)
+                },
+                pipe_connections = {{type = "input", position = {-8, 3}}},
+                filter = "rf-helium-3-plasma",
                 production_type = "input"
             }
         },
@@ -311,7 +334,7 @@ data:extend{
     -- ANEUTRONIC REACTOR --
     {
         type = "assembling-machine",
-        name = "rf-reactor-aneutronic",
+        name = "rf-m-reactor-aneutronic",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-aneutronic.png",
         icon_size = 64,
         max_health = 5000,
@@ -322,7 +345,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 15, tile_height = 15,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "player-creation", "not-flammable", "not-upgradable"},
-        minable = {mining_time = 5, result= "rf-reactor-aneutronic"},
+        minable = {mining_time = 5, result= "rf-m-reactor-aneutronic"},
         working_sound = {
             sound = {
                 filename = "__RealisticFusionPower__/sounds/reactor-running.ogg",
@@ -617,7 +640,7 @@ data:extend{
     -- #region NEUTRONIC ICF REACTOR --
     {
         type = "assembling-machine",
-        name = "rf-reactor-icf",
+        name = "rf-m-reactor-icf",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf.png",
         icon_size = 64,
         max_health = 5000,
@@ -628,7 +651,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 18, tile_height = 18,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "player-creation", "not-flammable", "not-upgradable"},
-        minable = {mining_time = 5, result= "rf-reactor-icf"},
+        minable = {mining_time = 5, result= "rf-m-reactor-icf"},
         working_sound = {
             sound = {
                 filename = "__RealisticFusionPower__/sounds/reactor-running.ogg",
@@ -711,7 +734,7 @@ data:extend{
     },
     {
         type = "reactor",
-        name = "rf-reactor-icf-hx-north",
+        name = "rf-m-reactor-icf-hx-north",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf.png",
         icon_size = 64,
         max_health = 5000,
@@ -722,7 +745,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 6, tile_height = 4,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "not-flammable", "not-upgradable", "not-deconstructable", "not-blueprintable"},
-        minable = {mining_time = 5, result= "rf-reactor-icf"},
+        minable = {mining_time = 5, result= "rf-m-reactor-icf"},
         collision_box = {{-2.75, -1.75}, {2.75, 1.75}},
         selection_box = {{-3, -2}, {3, 2}},
         working_light_picture = rfcore.empty_sprite,
@@ -780,7 +803,7 @@ data:extend{
     },
     {
         type = "reactor",
-        name = "rf-reactor-icf-hx-west",
+        name = "rf-m-reactor-icf-hx-west",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf.png",
         icon_size = 64,
         max_health = 5000,
@@ -791,7 +814,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 5, tile_height = 7,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "not-flammable", "not-upgradable", "not-deconstructable", "not-blueprintable"},
-        minable = {mining_time = 5, result= "rf-reactor-icf"},
+        minable = {mining_time = 5, result= "rf-m-reactor-icf"},
         collision_box = {{-2.25, -3.25}, {2.25, 3.25}},
         selection_box = {{-2.5, -3.5}, {2.5, 3.5}},
         working_light_picture = rfcore.empty_sprite,
@@ -852,7 +875,7 @@ data:extend{
     -- #region ANEUTRONIC ICF REACTOR --
     {
         type = "assembling-machine",
-        name = "rf-reactor-icf-aneutronic",
+        name = "rf-m-reactor-icf-aneutronic",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf-aneutronic.png",
         icon_size = 64,
         max_health = 5000,
@@ -863,7 +886,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 18, tile_height = 18,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "player-creation", "not-flammable", "not-upgradable"},
-        minable = {mining_time = 5, result= "rf-reactor-icf-aneutronic"},
+        minable = {mining_time = 5, result= "rf-m-reactor-icf-aneutronic"},
         working_sound = {
             sound = {
                 filename = "__RealisticFusionPower__/sounds/reactor-running.ogg",
@@ -938,7 +961,7 @@ data:extend{
     },
     {
         type = "generator",
-        name = "rf-reactor-icf-aneutronic-hx-north",
+        name = "rf-m-reactor-icf-aneutronic-hx-north",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf-aneutronic.png",
         icon_size = 64,
         max_health = 5000,
@@ -949,7 +972,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 6, tile_height = 4,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "not-flammable", "not-upgradable", "not-deconstructable", "not-blueprintable"},
-        minable = {mining_time = 5, result= "rf-reactor-icf-aneutronic"},
+        minable = {mining_time = 5, result= "rf-m-reactor-icf-aneutronic"},
         collision_box = {{-2.75, -1.75}, {2.75, 1.75}},
         selection_box = {{-3, -2}, {3, 2}},
         burns_fluid = true,
@@ -981,7 +1004,7 @@ data:extend{
     },
     {
         type = "generator",
-        name = "rf-reactor-icf-aneutronic-hx-west",
+        name = "rf-m-reactor-icf-aneutronic-hx-west",
         icon = "__RealisticFusionPower__/graphics/icons/reactor-icf-aneutronic.png",
         icon_size = 64,
         max_health = 5000,
@@ -992,7 +1015,7 @@ data:extend{
         close_sound = rfcore.sounds.machine_close,
         tile_width = 5, tile_height = 7,
         flags = {"not-rotatable", "placeable-neutral", "placeable-player", "not-flammable", "not-upgradable", "not-deconstructable", "not-blueprintable"},
-        minable = {mining_time = 5, result= "rf-reactor-icf-aneutronic"},
+        minable = {mining_time = 5, result= "rf-m-reactor-icf-aneutronic"},
         collision_box = {{-2.25, -3.25}, {2.25, 3.25}},
         selection_box = {{-2.5, -3.5}, {2.5, 3.5}},
         burns_fluid = true,
@@ -1026,20 +1049,20 @@ data:extend{
 }
 
 -- #region NEUTRONIC ICF REACTOR --
-local icf_hx_south = table.deepcopy(data.raw.reactor["rf-reactor-icf-hx-north"])
-icf_hx_south.name = "rf-reactor-icf-hx-south"
+local icf_hx_south = table.deepcopy(data.raw.reactor["rf-m-reactor-icf-hx-north"])
+icf_hx_south.name = "rf-m-reactor-icf-hx-south"
 icf_hx_south.energy_source.fluid_box.pipe_connections = {{type = "input", position = {0, -2.5}}}
-local icf_hx_east = table.deepcopy(data.raw.reactor["rf-reactor-icf-hx-west"])
-icf_hx_east.name = "rf-reactor-icf-hx-east"
+local icf_hx_east = table.deepcopy(data.raw.reactor["rf-m-reactor-icf-hx-west"])
+icf_hx_east.name = "rf-m-reactor-icf-hx-east"
 icf_hx_east.energy_source.fluid_box.pipe_connections = {{type = "input", position = {-3, 0}}}
 -- #endregion --
 
 -- #region ANEUTRONIC ICF REACTOR --
-local aneutronic_icf_hx_south = table.deepcopy(data.raw.generator["rf-reactor-icf-aneutronic-hx-north"])
-aneutronic_icf_hx_south.name = "rf-reactor-icf-aneutronic-hx-south"
+local aneutronic_icf_hx_south = table.deepcopy(data.raw.generator["rf-m-reactor-icf-aneutronic-hx-north"])
+aneutronic_icf_hx_south.name = "rf-m-reactor-icf-aneutronic-hx-south"
 aneutronic_icf_hx_south.fluid_box.pipe_connections = {{type = "input", position = {0, -2.5}}}
-local aneutronic_icf_hx_east = table.deepcopy(data.raw.generator["rf-reactor-icf-aneutronic-hx-west"])
-aneutronic_icf_hx_east.name = "rf-reactor-icf-aneutronic-hx-east"
+local aneutronic_icf_hx_east = table.deepcopy(data.raw.generator["rf-m-reactor-icf-aneutronic-hx-west"])
+aneutronic_icf_hx_east.name = "rf-m-reactor-icf-aneutronic-hx-east"
 aneutronic_icf_hx_east.fluid_box.pipe_connections = {{type = "input", position = {-3, 0}}}
 data:extend{icf_hx_south, icf_hx_east, aneutronic_icf_hx_south, aneutronic_icf_hx_east}
 -- #endregion --

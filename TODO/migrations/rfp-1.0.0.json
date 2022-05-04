@@ -1,15 +1,15 @@
 {
     "entity":
     [
-    	["tokamak-tritium", "rf-heater"],
-    	["stellarator-tritium", "rf-reactor"],
+    	["tokamak-tritium", "rf-m-heater"],
+    	["stellarator-tritium", "rf-m-reactor"],
     	["hydrogen-isotope-processor", "rf-gas-mixer"],
     	["deuterium-extractor", "rf-deuterium-extractor"]
     ],
     "item":
     [
-    	["tokamak-tritium", "rf-heater"],
-    	["stellarator-tritium", "rf-reactor"],
+    	["tokamak-tritium", "rf-m-heater"],
+    	["stellarator-tritium", "rf-m-reactor"],
     	["hydrogen-isotope-processor", "rf-gas-mixer"],
     	["deuterium-extractor", "rf-deuterium-extractor"]
     ]

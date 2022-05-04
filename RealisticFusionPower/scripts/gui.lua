@@ -23,11 +23,12 @@ local function line(element, direction)
 end
 
 local function slider_progressbar(unit_number, element, name, k, suffix, padleft, padcenter, padright, t, max_value, style, top_margin, slider_size, value_size)
+    local n = global.networks[global.entities[unit_number]]
     style = style or "rf_reactor_control_notched_slider"--"map_generator_notched_slider_wide"
     slider_size = slider_size or 120
     value_size = value_size or 30
     t = t or "slider"
-    local v = global.reactors[unit_number][name:gsub("-", "_")]
+    local v = n[name:gsub("-", "_")]
     max_value = max_value or 100
     suffix = suffix or ""
 
@@ -56,7 +57,9 @@ local function slider_progressbar(unit_number, element, name, k, suffix, padleft
 
     if value_size ~= 0 then
         local value_frame = element.add{type="frame", name="rf-"..name.."-value-frame", style="slot_button_deep_frame"}
-        if global.reactors[unit_number].systems == "left" then slider.enabled = false; v = "OFF" end
+        if n.systems == "left"
+        or (name == "plasma-heating" and n.heating == "left")
+        or (name == "magnetic-field-strength" and n.magnetic_field == "left") then slider.enabled = false; v = "OFF" end
         local value = value_frame.add{type="label", name="rf-"..name.."-value", caption=(v..suffix):sub(1,3), tags={unit_number=unit_number, suffix=suffix}}
             value.style.width = value_size
             value.style.horizontal_align = "center"
@@ -74,25 +77,26 @@ end
 -- #region MAIN FUNCTION --
 
 script.on_event(defines.events.on_gui_opened, function(event)
-    if event.gui_type == defines.gui_type.entity and event.entity.name == "rf-reactor" then
+    if event.gui_type == defines.gui_type.entity and event.entity.name == "rf-m-reactor" then
         try_catch(function()
             local player = game.get_player(event.player_index)
             if player.gui.screen[rfpower.gui_name] then player.opened = nil else
                 local un = event.entity.unit_number
                 -- #region INIT GLOBAL TABLE --
-                global.reactors[un].guis.sliders[event.player_index] = {}
-                global.reactors[un].guis.bars[event.player_index] = {}
-                global.reactors[un].guis.switches[event.player_index] = {}
-                global.reactors[un].guis.choice_elems[event.player_index] = {}
-                global.reactors[un].guis.sprites[event.player_index] = {}
-                global.reactors[un].guis.sprite_idxs[event.player_index] = 1
+                local network = global.networks[global.entities[un]]
+                network.guis.sliders[event.player_index] = {}
+                network.guis.bars[event.player_index] = {}
+                network.guis.switches[event.player_index] = {}
+                network.guis.choice_elems[event.player_index] = {}
+                network.guis.sprites[event.player_index] = {}
+                network.guis.sprite_idxs[event.player_index] = 1
                 -- #endregion --
 
                 -- #region WINDOW --
                 local window = player.gui.screen.add{type="frame", name=rfpower.gui_name, direction="vertical", tags={unit_number=un}}
                     window.style.size = {1080, 440}
                     window.auto_center = true
-                --global.reactors[un][event.player_index].window = window
+                --network[event.player_index].window = window
 
                 local titlebar = window.add{type="flow", name="titlebar", direction="horizontal"}; titlebar.drag_target = window
                     titlebar.add{type="label", name="title", style="frame_title", ignored_by_interaction=true, caption="Fusion reactor control"}
@@ -143,7 +147,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                 local content_left_main_vars = content_sections.left.add{type="table", name="table-main-vars", column_count=4};
                     content_left_main_vars.style.top_cell_padding = 3
                     content_left_main_vars.style.bottom_cell_padding = 3
-                global.reactors[un].guis.sliders[event.player_index]["plasma-heating"] = slider_progressbar(
+                network.guis.sliders[event.player_index]["plasma-heating"] = slider_progressbar(
                     un, content_left_main_vars, "plasma-heating", "Plasma heating", "%", 30
                 )
                 padding(content_sections.left, 10)
@@ -156,15 +160,15 @@ script.on_event(defines.events.on_gui_opened, function(event)
 
                 for _,k in pairs{--[["Plasma heating",]] "Magnetic field strength", "Plasma flow speed"} do
                     local name = k:lower():gsub(" ", "-")
-                    global.reactors[un].guis.sliders[event.player_index][name] = slider_progressbar(un, content_left_vars, name, k, "%")
+                    network.guis.sliders[event.player_index][name] = slider_progressbar(un, content_left_vars, name, k, "%")
                 end
 
                 --content_left_vars.add{type="label", caption="Plasma flow direction"}
-                --global.reactors[un].guis.switches[event.player_index]["plasma-flow-direction"] = content_left_vars.add{
+                --network.guis.switches[event.player_index]["plasma-flow-direction"] = content_left_vars.add{
                 --    type="switch", name="rf-plasma-flow-direction", style = "rf_reactor_control_switch", left_label_caption="CW", right_label_caption="CCW",
-                --    allow_none_state=true, switch_state=global.reactors[un].plasma_flow_direction, tags={unit_number=un}
+                --    allow_none_state=true, switch_state=network.plasma_flow_direction, tags={unit_number=un}
                 --}
-                --if global.reactors[un].systems == "left" then global.reactors[un].guis.switches[event.player_index]["plasma-flow-direction"].enabled = false end
+                --if network.systems == "left" then network.guis.switches[event.player_index]["plasma-flow-direction"].enabled = false end
 
                 --padding(content_sections.left, 10)
                 --line(content_sections.left)
@@ -190,7 +194,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     for k,_v in pairs(v) do
                         if k:sub(1,6) == "Energy" then s = "electric_statistics_progressbar" end
                         local name = k:lower():gsub(" ", "-")
-                        global.reactors[un].guis.bars[event.player_index][name] = slider_progressbar(un, table, name, k, _v[0], -1, nil, 0, "progressbar", _v[1], s, nil, w, 58)
+                        network.guis.bars[event.player_index][name] = slider_progressbar(un, table, name, k, _v[0], -1, nil, 0, "progressbar", _v[1], s, nil, w, 58)
                     end
                 end
                 -- #endregion --
@@ -206,8 +210,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
                 for _,k in ipairs(switches) do content_right_switches.add{type="label", caption=k} end
                 for _,k in ipairs(switches) do
                     local name = k:gsub("%s%s+", ""):lower():gsub(" ", "-")
-                    global.reactors[un].guis.switches[event.player_index][name] = content_right_switches.add{type="switch", name="rf-"..name,
-                        style = "rf_reactor_control_switch", left_label_caption="OFF", right_label_caption="ON", tags={unit_number=un}, switch_state=global.reactors[un][name:gsub("-", "_")]
+                    network.guis.switches[event.player_index][name] = content_right_switches.add{type="switch", name="rf-"..name,
+                        style = "rf_reactor_control_switch", left_label_caption="OFF", right_label_caption="ON", tags={unit_number=un}, switch_state=network[name:gsub("-", "_")]
                     }
                 end
 
@@ -239,16 +243,16 @@ script.on_event(defines.events.on_gui_opened, function(event)
                         paddingh(content_right_vars, 5 - (i%2)*5)
                         if pad[i] == 0 then
                             local name = k:lower():gsub(" ", "-")
-                            local v = global.reactors[un][name:gsub("-", "_")]
+                            local v = network[name:gsub("-", "_")]
                             local slider = content_right_vars.add{type="slider", name="rf-"..name, style="rf_reactor_control_notched_slider",
                                 value=v, maximum_value=100, value_step=10, tags={unit_number=un}
                             }; slider.style.width = 103
-                            if global.reactors[un].systems == "left" then slider.enabled = false; v = "OFF" end
+                            if network.systems == "left" then slider.enabled = false; v = "OFF" end
                             local value_frame = content_right_vars.add{type="frame", name="rf-"..name.."-value-frame", style="slot_button_deep_frame"}
                             local value = value_frame.add{type="label", name="rf-"..name.."-value", caption=((v or "OFF").."%"):sub(1,3)}
                                 value.style.width = 30
                                 value.style.horizontal_align = "center"
-                            global.reactors[un].guis.sliders[event.player_index][name] = slider
+                            network.guis.sliders[event.player_index][name] = slider
                         else
                             paddingh(content_right_vars, 0)
                             paddingh(content_right_vars, pad_slider)
@@ -260,7 +264,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     local content_right_stats = content_sections.right.add{type="table", name="table-"..prefix:lower().."-stats", column_count=4}
                         content_right_stats.style.top_cell_padding = 3
                         content_right_stats.style.bottom_cell_padding = 3
-                    global.reactors[un].guis.bars[event.player_index][prefix:lower()] = slider_progressbar(un, content_right_stats,
+                    network.guis.bars[event.player_index][prefix:lower()] = slider_progressbar(un, content_right_stats,
                         prefix:lower(), prefix.." in plasma", "%",
                         pad_progressbar, nil, nil, "progressbar", nil,
                         "statistics_progressbar", nil, 99, 60
@@ -277,7 +281,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                 --gas_section("Helium-3", 7, {30,0}, 133)
                 gas_section("Helium-4", 7, {-1,-1})
 
-                --[[global.reactors[un].guis.bars[event.player_index]["lithium-stored"] = slider_progressbar(un, content_sections.right.add{type="flow", name="table-stats-right-lithium"},
+                --[[network.guis.bars[event.player_index]["lithium-stored"] = slider_progressbar(un, content_sections.right.add{type="flow", name="table-stats-right-lithium"},
                     "lithium-stored", "Lithium stored in reactor", "u",
                     1, nil, nil, "progressbar", nil,
                     "statistics_progressbar", 5, 78, 58
@@ -313,19 +317,19 @@ script.on_event(defines.events.on_gui_opened, function(event)
                 }}
                 controller.style.size = 64
 
-                global.reactors[un].guis.choice_elems[event.player_index]["reactor-recipe"] = recipe
-                global.reactors[un].guis.choice_elems[event.player_index]["controller-tech"] = controller]]
+                network.guis.choice_elems[event.player_index]["reactor-recipe"] = recipe
+                network.guis.choice_elems[event.player_index]["controller-tech"] = controller]]
                 -- #endregion --
 
                 -- #region CENTER --
                 local wall_integrity = content_sections.center.add{type="flow", name="table-stats-right-wall-integrity"}
                 paddingh(wall_integrity)
-                --global.reactors[un].guis.bars[event.player_index]["wall-integrity"] = slider_progressbar(un, wall_integrity,
+                --network.guis.bars[event.player_index]["wall-integrity"] = slider_progressbar(un, wall_integrity,
                 --    "wall-integrity", "Wall integrity", nil, nil, nil, "progressbar",
                 --    "electric_satisfaction_progressbar",5, 82, 0
                 --)
                 local slider = wall_integrity.add{type="progressbar", name="rf-wall-integrity", style="electric_satisfaction_progressbar",
-                    value=global.reactors[un].wall_integrity,tags={unit_number=un}, maximum_value=100, caption="INTERNAL REACTOR WALL INTEGRITY"
+                    value=network.wall_integrity,tags={unit_number=un}, maximum_value=100, caption="INTERNAL REACTOR WALL INTEGRITY"
                 };
                     slider.style.width = 400;
                     slider.style.height = 18
@@ -333,12 +337,12 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     slider.style.bar_width = 18
                     slider.style.horizontal_align = "center"
                     slider.style.font = "default-small-semibold"
-                global.reactors[un].guis.bars[event.player_index]["wall-integrity"] = slider
+                network.guis.bars[event.player_index]["wall-integrity"] = slider
                 paddingh(wall_integrity)
 
-                global.reactors[un].guis.sprites[event.player_index] = content_sections.center.add{type="sprite", name="rf-reactor-sprite", tags={unit_number=un},
+                network.guis.sprites[event.player_index] = content_sections.center.add{type="sprite", name="rf-m-reactor-sprite", tags={unit_number=un},
                     --sprite = "rf-gui-plasma-sprite-1"
-                }; global.reactors[un].guis.sprites[event.player_index].style.left_padding = 10
+                }; network.guis.sprites[event.player_index].style.left_padding = 10
                 -- #endregion --
 
                 player.opened = window

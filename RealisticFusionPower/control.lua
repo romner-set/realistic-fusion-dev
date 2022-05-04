@@ -3,55 +3,48 @@ require("__RealisticFusionCore__/try-catch")
 -- #region INIT GLOBAL(-ISH) TABLE --
 rfpower = {
     icf_offsets = {
-        ["rf-reactor-icf"] = {
+        ["rf-m-reactor-icf"] = {
             ["-hx-west"] = {-11.5, 0},
             ["-hx-east"] = {11.5, 0},
             ["-hx-north"] = {0, -11},
             ["-hx-south"] = {0, 11}
         },
-        ["rf-reactor-icf-hx-west"] = {
+        ["rf-m-reactor-icf-hx-west"] = {
             [""] = {11.5, 0},
             ["-hx-east"] = {23, 0},
             ["-hx-north"] = {11.5, -11.5},
             ["-hx-south"] = {11.5, 11.5}
         },
-        ["rf-reactor-icf-hx-east"] = {
+        ["rf-m-reactor-icf-hx-east"] = {
             [""] = {-11.5, 0},
             ["-hx-west"] = {-23, 0},
             ["-hx-north"] = {-11.5, -11.5},
             ["-hx-south"] = {-11.5, 11.5}
         },
-        ["rf-reactor-icf-hx-north"] = {
+        ["rf-m-reactor-icf-hx-north"] = {
             [""] = {0, 11.5},
             ["-hx-east"] = {11.5, 11.5},
             ["-hx-west"] = {-11.5, 11.5},
             ["-hx-south"] = {0, 23}
         },
-        ["rf-reactor-icf-hx-south"] = {
+        ["rf-m-reactor-icf-hx-south"] = {
             [""] = {0, -11.5},
             ["-hx-east"] = {11.5, -11.5},
             ["-hx-west"] = {-11.5, -11.5},
             ["-hx-north"] = {0, -23}
         }
     },
-    icf_reactors = {["rf-reactor-icf"] = true, ["rf-reactor-icf-aneutronic"] = true},
-    reactors = {["rf-reactor"] = true, ["rf-reactor-aneutronic"] = true}
+    icf_reactors = {["rf-m-reactor-icf"] = true, ["rf-m-reactor-icf-aneutronic"] = true},
+    reactors = {["rf-m-reactor"] = true, ["rf-m-reactor-aneutronic"] = true}
 }
 
 rfpower.icf_offsets_aneutronic = {
-    ["rf-reactor-icf-aneutronic"] = rfpower.icf_offsets["rf-reactor-icf"],
-    ["rf-reactor-icf-aneutronic-hx-west"] = rfpower.icf_offsets["rf-reactor-icf-hx-west"],
-    ["rf-reactor-icf-aneutronic-hx-east"] = rfpower.icf_offsets["rf-reactor-icf-hx-east"],
-    ["rf-reactor-icf-aneutronic-hx-north"] = rfpower.icf_offsets["rf-reactor-icf-hx-north"],
-    ["rf-reactor-icf-aneutronic-hx-south"] = rfpower.icf_offsets["rf-reactor-icf-hx-south"]
+    ["rf-m-reactor-icf-aneutronic"] = rfpower.icf_offsets["rf-m-reactor-icf"],
+    ["rf-m-reactor-icf-aneutronic-hx-west"] = rfpower.icf_offsets["rf-m-reactor-icf-hx-west"],
+    ["rf-m-reactor-icf-aneutronic-hx-east"] = rfpower.icf_offsets["rf-m-reactor-icf-hx-east"],
+    ["rf-m-reactor-icf-aneutronic-hx-north"] = rfpower.icf_offsets["rf-m-reactor-icf-hx-north"],
+    ["rf-m-reactor-icf-aneutronic-hx-south"] = rfpower.icf_offsets["rf-m-reactor-icf-hx-south"]
 }
-
-function rfpower.read_file(file)
-    local f = io.open(file, "rb")
-    local content = f:read("*all")
-    f:close()
-    return content
-end
 -- #endregion --
 
 -- #region INIT MOD INTERFACE --
@@ -77,9 +70,9 @@ local reactor_logic_func = require("scripts.reactor-logic") -- simulates the fus
 
 script.on_event(defines.events.on_tick, function(event)
     try_catch(function()
-        for unit_number, reactor in pairs(global.reactors) do
-            plasma_anim_func(reactor, unit_number, event.tick)
-            reactor_logic_func(reactor, event.tick)
+        for unit_number, network in pairs(global.networks) do
+            plasma_anim_func(network, unit_number, event.tick)
+            reactor_logic_func(network, event.tick)
         end
     end)
 end)
@@ -94,8 +87,9 @@ local function remote_calls() --has to be called twice for reasons long forgotte
 end
 script.on_init(function()
     remote_calls()
-    --global.reactors = {}
-    global.reactors = {}
+    global.networks = {}
+    global.networks_len = 0 --lua's # computes the result, this is more performant
+    global.entities = {} --only stores which networks reactors/heaters are connected to
 end)
 script.on_load(remote_calls)
 -- #endregion --

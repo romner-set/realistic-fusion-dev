@@ -1,23 +1,23 @@
 -- #region MAGNETIC PIPES --
 local pipe = table.deepcopy(data.raw.item["pipe"])
-pipe.name = "rf-magnetic-pipe"
-pipe.place_result = "rf-magnetic-pipe"
+pipe.name = "rf-m-magnetic-pipe"
+pipe.place_result = "rf-m-magnetic-pipe"
 pipe.icons = nil
 pipe.icon = "__RealisticFusionCore__/graphics/icons/magnetic-pipe.png"
 pipe.icon_size = 64; pipe.icon_mipmaps = 4
 pipe.order = "b[pipe]-x[magnetic-pipe]"
 
 local pipeToGround = table.deepcopy(data.raw.item["pipe-to-ground"])
-pipeToGround.name = "rf-magnetic-pipe-to-ground"
-pipeToGround.place_result = "rf-magnetic-pipe-to-ground"
+pipeToGround.name = "rf-m-magnetic-pipe-to-ground"
+pipeToGround.place_result = "rf-m-magnetic-pipe-to-ground"
 pipeToGround.icons = nil
 pipeToGround.icon = "__RealisticFusionCore__/graphics/icons/magnetic-pipe-to-ground.png"
 pipeToGround.icon_size = 64; pipe.icon_mipmaps = 4
 pipeToGround.order = "b[pipe]-y[magnetic-pipe-to-ground]"
 
 local pump = table.deepcopy(data.raw.item["pump"])
-pump.name = "rf-magnetic-pump"
-pump.place_result = "rf-magnetic-pump"
+pump.name = "rf-m-magnetic-pump"
+pump.place_result = "rf-m-magnetic-pump"
 pump.icons = nil
 pump.icon = "__RealisticFusionCore__/graphics/icons/magnetic-pump.png"
 pump.icon_size = 64; pipe.icon_mipmaps = 4
@@ -29,14 +29,14 @@ data:extend{pipe, pipeToGround, pump,
     -- #region ENTITY ITEMS --
     {
         type = "item",
-        name = "rf-heater",
+        name = "rf-m-heater",
         order = "g[realistic-fusion]-a[heater]",
         --group = "production",
         subgroup = "energy",
         icon = "__RealisticFusionCore__/graphics/icons/heater.png",
         icon_size = 64,
         stack_size = 1,
-        place_result = "rf-heater",
+        place_result = "rf-m-heater",
     },
     {
         type = "item",
