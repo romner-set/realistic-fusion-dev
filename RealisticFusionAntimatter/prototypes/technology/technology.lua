@@ -28,7 +28,7 @@ data:extend{
         type = "technology",
         name = "rf-antimatter-theory",
         icon = "__RealisticFusionAntimatter__/graphics/technology/antimatter-theory.png",
-        icon_size = 64, icon_mipmaps = 4, icon_mipmaps = 5,
+        icon_size = 64, icon_mipmaps = 5,
         unit = {
             count = rfcore.sm * 200000,
             time = 15,

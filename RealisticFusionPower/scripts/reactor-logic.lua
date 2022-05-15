@@ -6,8 +6,6 @@ local min_field_strength = 20e6/60 --J/t; same as ITER
 local max_field_strength = 50e6/60 --J/t; ITER doesn't need anything because of superconductors afaik, but it'd probably just confuse people so...
 local systems_consumption = 100e6/60 --J/t; same as ITER?
 local max_divertor_strength = 750e6/60 --J/t
-local max_heating = 1e9/60  --J/t
-local plasma_volume = 840    --m^3; also the same as ITER
 local tritium_atomic_mass = 3.016; local deuterium_atomic_mass = 2.014 --amu or g/mol
 local avogadros_constant = 6.02214086e23
 local amu_per_kg = avogadros_constant*1e3
@@ -45,7 +43,7 @@ end
 -- #region FUNCTIONS --
 
 -- modified binary search for finding the nearest match in a given dataset
-local function binsearch(data, size, value)
+function rfpower.binsearch(data, size, value)
     local nearest_down,mid,nearest_up = 1,0,size
     while nearest_down <= nearest_up do
         mid = math.floor((nearest_down+nearest_up)/2)
@@ -67,9 +65,9 @@ local function binsearch(data, size, value)
 end
 
 -- estimates reactivity based on the two closest points in a dataset
-local function estimate_r(temperature, dataset, network_id)
-    local last_index = global.networks[network_id].cached_reactivity[dataset]
-    local target_energy = (temperature*1e6)/k_per_ev
+function rfpower.estimate_r(network, dataset)
+    local last_index = network.cached_reactivity[dataset]
+    local target_energy = (network.plasma_temperature*1e6)/k_per_ev
     local data = rfp_datasets[dataset]
     --local dataset_size = rfp_dataset_sizes[dataset]
     local nearest_down,nearest_up = last_index,last_index+1
@@ -77,7 +75,7 @@ local function estimate_r(temperature, dataset, network_id)
     if data[nearest_down][1] > target_energy then
         if nearest_down > 1 then
             if data[nearest_down-1][1] > target_energy then --data way off
-                nearest_down,nearest_up = binsearch(data, rfp_dataset_sizes[dataset], target_energy)
+                nearest_down,nearest_up = rfpower.binsearch(data, rfp_dataset_sizes[dataset], target_energy)
                 last_index = nearest_down
                 if nearest_down == nearest_up then return data[nearest_down][2] end
             else
@@ -89,7 +87,7 @@ local function estimate_r(temperature, dataset, network_id)
     elseif data[nearest_up][1] < target_energy then
         if nearest_down < rfp_dataset_sizes[dataset]-1 then
             if data[nearest_up+1][1] < target_energy then --data way off
-                nearest_down,nearest_up = binsearch(data, rfp_dataset_sizes[dataset], target_energy)
+                nearest_down,nearest_up = rfpower.binsearch(data, rfp_dataset_sizes[dataset], target_energy)
                 last_index = nearest_down
                 if nearest_down == nearest_up then return data[nearest_down][2] end
             else
@@ -107,7 +105,7 @@ local function estimate_r(temperature, dataset, network_id)
     return ((target_energy - nearest_down_e)/(data[nearest_up][1] - nearest_down_e)) * (data[nearest_up][2] - nearest_down_sig) + nearest_down_sig
 end
 
-local function update_gui_bar(network, name, max, unit, value)
+function rfpower.update_gui_bar(network, name, max, unit, value)
     if network.systems == "right" then
         value = value or network[name]
         for idx, v in pairs(network.guis.bars) do
@@ -125,6 +123,7 @@ end
 
 return function(network, current_tick) --runs on_tick, per network
     -- #region UPDATE PLASMA --
+    local plasma_volume = network.reactor_volume
     local plasma_mass = network.total_plasma*plasma_volume*(0.18+0.27)/2
     for _,k in ipairs{"deuterium", "tritium", "helium_3"} do
         local old = network[k]
@@ -137,8 +136,8 @@ return function(network, current_tick) --runs on_tick, per network
 
         if old ~= network[k] then
             if network[k] < 0 then network[k] = 0
-            elseif network[k] > 800 then network[k] = 800 end
-            update_gui_bar(network, k, 840, "m³")
+            elseif network[k] > plasma_volume*0.95 then network[k] = plasma_volume*0.95 end
+            rfpower.update_gui_bar(network, k, plasma_volume, "m³")
             --network.plasma_temperature = network.plasma_temperature*(plasma_mass * 5920.5) --temp = energy/(mass*specific_heat)
         end
     end
@@ -146,10 +145,10 @@ return function(network, current_tick) --runs on_tick, per network
     -- #endregion --
     
     -- #region --TODO TESTING VARIABLES --
-    network.total_plasma = (network.deuterium + network.tritium + network.helium_3)/840
+    network.total_plasma = (network.deuterium + network.tritium + network.helium_3)/plasma_volume
     --log(serpent.line{network.deuterium, network.tritium, network.helium_3})
-    update_gui_bar(network, "total_plasma", 840, "m³", network.total_plasma*840)
-    local current_heating = max_heating/100*network.plasma_heating
+    rfpower.update_gui_bar(network, "total_plasma", plasma_volume, "m³", network.total_plasma*plasma_volume)
+    local current_heating = network.heater_power/100*network.plasma_heating
     local divertor_strength = max_divertor_strength*network.divertor_strength/100
     local max_particles = (1e20*plasma_volume)^2
     local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the network not produce any net energy
@@ -165,13 +164,13 @@ return function(network, current_tick) --runs on_tick, per network
             local he3_level = network.helium_3/plasma_volume
             --log(serpent.line{d_level, t_level, he3_level})
 
-            local dd_t_chance = estimate_r(network.plasma_temperature, "D-D_T")*(d_level^2)
-            local dd_he3_chance = estimate_r(network.plasma_temperature, "D-D_He3")*(d_level^2)
-            local dt_chance = estimate_r(network.plasma_temperature, "D-T")*d_level*t_level
-            local dhe3_chance = estimate_r(network.plasma_temperature, "D-He3")*d_level*he3_level
-            local tt_chance = estimate_r(network.plasma_temperature, "T-T")*(t_level^2)
-            local the3_chance = estimate_r(network.plasma_temperature, "T-He3")*t_level*he3_level
-            local he3he3_chance = estimate_r(network.plasma_temperature, "He3-He3")*(he3_level^2)
+            local dd_t_chance = rfpower.estimate_r(network, "D-D_T")*(d_level^2)
+            local dd_he3_chance = rfpower.estimate_r(network, "D-D_He3")*(d_level^2)
+            local dt_chance = rfpower.estimate_r(network, "D-T")*d_level*t_level
+            local dhe3_chance = rfpower.estimate_r(network, "D-He3")*d_level*he3_level
+            local tt_chance = rfpower.estimate_r(network, "T-T")*(t_level^2)
+            local the3_chance = rfpower.estimate_r(network, "T-He3")*t_level*he3_level
+            local he3he3_chance = rfpower.estimate_r(network, "He3-He3")*(he3_level^2)
 
             --log(serpent.block{dd_t_chance, dd_he3_chance, dt_chance, dhe3_chance, tt_chance, the3_chance, he3he3_chance})
 
@@ -201,36 +200,36 @@ return function(network, current_tick) --runs on_tick, per network
             if network.tritium < 0 then network.tritium = 0 end
             if network.helium_3 < 0 then network.helium_3 = 0 end
             
-            update_gui_bar(network, "deuterium", 840, "m³", math.floor(network.deuterium*1000)/1000)
-            update_gui_bar(network, "tritium", 840, "m³", math.floor(network.tritium*1000)/1000)
-            update_gui_bar(network, "helium_3", 840, "m³", math.floor(network.helium_3*1000)/1000)
+            rfpower.update_gui_bar(network, "deuterium", plasma_volume, "m³", math.floor(network.deuterium*1000)/1000)
+            rfpower.update_gui_bar(network, "tritium", plasma_volume, "m³", math.floor(network.tritium*1000)/1000)
+            rfpower.update_gui_bar(network, "helium_3", plasma_volume, "m³", math.floor(network.helium_3*1000)/1000)
 
             --[[fusion_energy = max_particles*((
                     network.deuterium*(
-                        estimate_r(network.plasma_temperature, "D-D_T")
-                    + estimate_r(network.plasma_temperature, "D-D_He3")
+                        rfpower.estimate_r(network, "D-D_T")
+                    + rfpower.estimate_r(network, "D-D_He3")
                     )
-                    + network.tritium * estimate_r(network.plasma_temperature, "D-T")
-                    + network.helium_3 * estimate_r(network.plasma_temperature, "D-He3")
+                    + network.tritium * rfpower.estimate_r(network, "D-T")
+                    + network.helium_3 * rfpower.estimate_r(network, "D-He3")
                 )*network.deuterium
                 + network.tritium*(
-                    estimate_r(network.plasma_temperature, "T-T")*network.tritium
-                + estimate_r(network.plasma_temperature, "T-He3")*network.helium_3
+                    rfpower.estimate_r(network, "T-T")*network.tritium
+                + rfpower.estimate_r(network, "T-He3")*network.helium_3
                 )
-                + estimate_r(network.plasma_temperature, "He3-He3")*network.helium_3^2
+                + rfpower.estimate_r(network, "He3-He3")*network.helium_3^2
             )/(60*plasma_volume)]] --TODO m^3 to u
         elseif network.tritium > 0 then --TODO
-            local e = estimate_r(network.plasma_temperature, "T-T")*network.tritium
+            local e = rfpower.estimate_r(network, "T-T")*network.tritium
             if network.helium_3 > 0 then
-                e = network.tritium*(e + estimate_r(network.plasma_temperature, "T-He3")*network.helium_3)
-                + estimate_r(network.plasma_temperature, "He3-He3")*network.helium_3^2
+                e = network.tritium*(e + rfpower.estimate_r(network, "T-He3")*network.helium_3)
+                + rfpower.estimate_r(network, "He3-He3")*network.helium_3^2
             end
             fusion_energy = e*max_particles/(60*plasma_volume)
         elseif network.helium_3 > 0 then --TODO
-            local e = estimate_r(network.plasma_temperature, "He3-He3")*network.helium_3
+            local e = rfpower.estimate_r(network, "He3-He3")*network.helium_3
             if network.tritium > 0 then
-                e = network.helium_3*(e + estimate_r(network.plasma_temperature, "T-He3"))
-                + estimate_r(network.plasma_temperature, "T-T")*network.tritium^2
+                e = network.helium_3*(e + rfpower.estimate_r(network, "T-He3"))
+                + rfpower.estimate_r(network, "T-T")*network.tritium^2
             end
             fusion_energy = e*max_particles/(60*plasma_volume)
         end
@@ -240,7 +239,7 @@ return function(network, current_tick) --runs on_tick, per network
         end
 -------- #endregion --------
 
-        --[[local fusion_factor = estimate_r((network.plasma_temperature*1e6)/k_per_ev, rfp_datasets[recipe], rfp_dataset_sizes[recipe])-- *1.2e2
+        --[[local fusion_factor = rfpower.estimate_r((network.plasma_temperature*1e6)/k_per_ev, rfp_datasets[recipe], rfp_dataset_sizes[recipe])-- *1.2e2
         if current_tick%math.ceil(30*math.random())==0 then
             fusion_factor = fusion_factor*(math.random()/8+0.9375)
             energy_loss = energy_loss*(math.random()+0.5)
@@ -280,26 +279,26 @@ return function(network, current_tick) --runs on_tick, per network
 
         -- #region UPDATE GUI --
         network.energy_input = math.floor(energy_in)
-        update_gui_bar(network, "energy_input", 1000, "MW")
+        rfpower.update_gui_bar(network, "energy_input", 1000, "MW")
     
         network.energy_output = math.floor(fusion_energy*0.4*60/1e6)
-        update_gui_bar(network, "energy_output", 1000, "MW")
+        rfpower.update_gui_bar(network, "energy_output", 1000, "MW")
     
         network.plasma_temperature = current_temp
-        update_gui_bar(network, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
+        rfpower.update_gui_bar(network, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
         -- #endregion --
     
         --if fusion_energy ~= 0 then log(fusion_energy*60/1e6) end
         --if current_tick%60==0 then
             --game.print(network.wall_integrity)
             --game.print((network.plasma_temperature*1e6)/k_per_ev)
-            --game.print(serpent.line(estimate_r((network.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
+            --game.print(serpent.line(rfpower.estimate_r((network.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
             --game.print(serpent.line{particle_counts_in_plasma,  current_temp, (current_temp*1e6)/k_per_ev, network.fusion_rate, network.fusion_rate*60/1e6, energy_loss_per_MK*network.plasma_temperature*(math.math.random()+0.5)*60/1e6})
         --end
     elseif current_tick%20==0 then --check if everything is at 0, make it so
-        if network.plasma_temperature ~= 0 then network.plasma_temperature = 0; update_gui_bar(network, "plasma_temperature", 200, " M°C", 0) end
-        if network.energy_input ~= 0 then network.energy_input = 0; update_gui_bar(network, "energy_input", 1000, "MW") end
-        if network.energy_output ~= 0 then network.energy_output = 0; update_gui_bar(network, "energy_output", 1000, "MW") end
+        if network.plasma_temperature ~= 0 then network.plasma_temperature = 0; rfpower.update_gui_bar(network, "plasma_temperature", 200, " M°C", 0) end
+        if network.energy_input ~= 0 then network.energy_input = 0; rfpower.update_gui_bar(network, "energy_input", 1000, "MW") end
+        if network.energy_output ~= 0 then network.energy_output = 0; rfpower.update_gui_bar(network, "energy_output", 1000, "MW") end
     end
 end
 -- #endregion --

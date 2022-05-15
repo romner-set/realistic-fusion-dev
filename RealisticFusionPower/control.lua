@@ -1,3 +1,4 @@
+if script.active_mods["gvv"] then require("__gvv__.gvv")() end --for debugging
 require("__RealisticFusionCore__/try-catch")
 
 -- #region INIT GLOBAL(-ISH) TABLE --
@@ -58,16 +59,15 @@ remote.add_interface("rfpower", { --make sure to call both on_init and on_load
 -- #endregion --
 
 -- #region SCRIPT IMPORTS --
--- only here for control stage, no nested requires
-require("scripts.entity-placement")
+-- control stage doesn't have any nested requires, everything's here
+require("scripts.entity-management")                        -- manages reactor/heater networks, ICF reactors, etc.
 require("scripts.gui")                                      -- creates the GUI when a player opens a reactor
 local plasma_anim_func   = require("scripts.gui-events")    -- animates the GUI's plasma visualization
 local reactor_logic_func = require("scripts.reactor-logic") -- simulates the fusion reactions/heating/etc of reactors
 -- #endregion --
 
 -- #region REGISTER EVENT HANDLERS --
--- make sure you don't handle an event twice, search in ./scripts for an EVENT HANDLERS section
-
+-- make sure you don't handle an event twice, look in ./scripts/ for an EVENT HANDLERS #region
 script.on_event(defines.events.on_tick, function(event)
     try_catch(function()
         for unit_number, network in pairs(global.networks) do
