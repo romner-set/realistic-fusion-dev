@@ -49,21 +49,38 @@ rfpower.icf_offsets_aneutronic = {
 -- #endregion --
 
 -- #region INIT MOD INTERFACE --
+local function get_nested_value(...)
+    local current = rfpower
+    for _,k in pairs{...} do current = current[k] end
+    return current
+end
+
 remote.add_interface("rfpower", { --make sure to call both on_init and on_load
-    add_to_list = function(key, values) for k,v in pairs(values) do rfpower[key][k] = v end end,
-    remove_from_list = function(key, value) rfpower[key][value] = nil end,
-    return_list = function(key) return rfpower[key] end,
-    return_value = function(key, value) return rfpower[key][value] end,
-    return_nested_value = function(key, value, _value) return rfpower[key][value][_value] end,
+    add_values = function(values, ...) --ex. add_values({["rf-m-reactor"] = true, ["rf-m-reactor-aneutronic"] = true}, "reactors")
+        local current = get_nested_value(...)
+        for k,v in pairs(values) do current[k] = v end --let's hope that lua adds it to the actual table rather than the local
+    end,
+    remove_value = function(value, ...)
+        local current = rfpower
+        for _,k in pairs{...} do
+            if type(current[k] == "table") then current = current[k] --tables should get copied by reference
+            else current[k] = nil return end --removes value
+        end
+        current = nil --removes table, again hopefully the actual one in rfpower
+    end,
+    return_value = function(...) return get_nested_value(...) end,
+    call_func = function(func, ...) return rfpower[func](...) end,
+    copy_all = function(key) return rfpower end,
+    overwrite_all = function(overwrite) rfpower = overwrite end --I don't recommend using this, but it might be useful in some cases
 })
 -- #endregion --
 
 -- #region SCRIPT IMPORTS --
 -- control stage doesn't have any nested requires, everything's here
-require("scripts.entity-management")                        -- manages reactor/heater networks, ICF reactors, etc.
-require("scripts.gui")                                      -- creates the GUI when a player opens a reactor
-local plasma_anim_func   = require("scripts.gui-events")    -- animates the GUI's plasma visualization
+local plasma_anim_func   = require("scripts.gui")           -- creates the GUI when a player opens a reactor/heater, returned func animates the plasma visualization
 local reactor_logic_func = require("scripts.reactor-logic") -- simulates the fusion reactions/heating/etc of reactors
+require("scripts.entity-management")                        -- manages reactor/heater networks, ICF reactors, etc.
+require("scripts.gui-events")                               -- handles GUI sliders, switches, buttons etc.
 -- #endregion --
 
 -- #region REGISTER EVENT HANDLERS --
@@ -78,12 +95,12 @@ script.on_event(defines.events.on_tick, function(event)
 end)
 
 local function remote_calls() --has to be called twice for reasons long forgotten
-    remote.call("rfcore", "add_to_list", "fluids_forbidden", { --adds these to RFC's script
+    remote.call("rfcore", "add_values", { --adds these to RFC's script
         "rf-fusion-results",
         "rf-tritiated-fusion-results",
         "rf-aneutronic-fusion-results",
         "rf-laser-photons"
-    })
+    }, "fluids_forbidden")
 end
 script.on_init(function()
     remote_calls()

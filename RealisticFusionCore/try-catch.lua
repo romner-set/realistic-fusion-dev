@@ -1,4 +1,4 @@
-function try_catch(func)
+function try_catch(func, ...)
     xpcall(func, function(err)
         global.stop = true
         local err_msg = tostring(err).."\n"..debug.traceback()
@@ -10,5 +10,5 @@ function try_catch(func)
         .."\n[font=default-large-semibold]You can continue continue playing normally if you aren't using anything from RF, but if you are, your"
         .."\nreactors aren't going to work until this is fixed. You could also try reloading the game, see if that helps.[/font]")
         log("nonfatal-ish error: \n"..err_msg)
-    end)
+    end, ...)
 end

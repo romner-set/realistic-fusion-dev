@@ -10,12 +10,32 @@ rfcore = {
 for _,v in ipairs{"rf-deuterium-plasma", "rf-d-t-plasma", "rf-helium-3-plasma", "rf-d-he3-plasma"} do rfcore.fluids_plasma[v] = true end
 --for _,v in ipairs{"rf-high-energy-positrons", "rf-high-energy-antiprotons", "rf-antiprotons", "rf-positrons", "rf-antihydrogen"} do fluids_am[v] = true end
 for _,v in ipairs{"pipe", "storage-tank", "pipe-to-ground", "pump"} do rfcore.fluid_filter_prototypes[v] = true end
+-- #endregion --
+
+-- #region INIT MOD INTERFACE --
+local function get_nested_value(...)
+    local current = rfcore
+    for _,k in pairs{...} do current = current[k] end
+    return current
+end
 
 remote.add_interface("rfcore", { --make sure to call both on_init and on_load
-    add_to_list = function(key, values) for _,v in ipairs(values) do rfcore[key][v] = true end end,
-    remove_from_list = function(key, value) rfcore[key][value] = nil end,
-    return_list = function(key) return rfcore[key] end,
-    is_in_list = function(key, value) return rfcore[key][value] ~= nil end,
+    add_values = function(values, ...) --ex. add_values({["rf-deuterium-plasma"] = true, ["rf-tritium-plasma"] = true}, "fluids_plasma")
+        local current = get_nested_value(...)
+        for k,v in pairs(values) do current[k] = v end --let's hope that lua adds it to the actual table rather than the local
+    end,
+    remove_value = function(value, ...)
+        local current = rfcore
+        for _,k in pairs{...} do
+            if type(current[k] == "table") then current = current[k] --tables should get copied by reference
+            else current[k] = nil return end --removes value
+        end
+        current = nil --removes table, again hopefully the actual one in rfcore
+    end,
+    return_value = function(...) return get_nested_value(...) end,
+    call_func = function(func, ...) return rfcore[func](...) end,
+    copy_all = function(key) return rfcore end,
+    overwrite_all = function(overwrite) rfcore = overwrite end --I don't recommend using this, but it might be useful in some cases
 })
 -- #endregion --
 
@@ -88,7 +108,6 @@ script.on_event(defines.events.on_tick, function(_) if not global.stop then
                                 global.entities[global.k].die(global.entities[global.k].force)
                                 table.remove(global.entities, global.k)
                             elseif rfcore.fluids_forbidden[_k] then
-                                log("FOOK")
                                 global.entities[global.k].clear_fluid_inside()
                             end
                         end
