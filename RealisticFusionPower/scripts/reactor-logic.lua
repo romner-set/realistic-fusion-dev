@@ -1,3 +1,5 @@
+local function print_log(str) game.print(str); log(str) end
+
 -- #region --TODO TESTING CONSTANTS --
 local boltzmann_constant = 1.380649e-23 --J/K
 local k_per_ev = 11604.52500617
@@ -122,6 +124,14 @@ end
 -- #region MAIN FUNCTION --
 
 return function(network, current_tick) --runs on_tick, per network
+    if false then --current_tick%20==0 then
+        local dd_count = 0
+        for _,e in pairs(network.heaters) do
+            dd_count = dd_count + e.get_fluid_count("rf-deuterium")
+        end
+        print_log("dd: "..dd_count)
+    end
+
     -- #region UPDATE PLASMA --
     local plasma_volume = network.reactor_volume
     local plasma_mass = network.total_plasma*plasma_volume*(0.18+0.27)/2

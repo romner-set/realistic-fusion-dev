@@ -10,8 +10,8 @@ rfpower.fcr_mode = 0               -- 0 == looks for a reactor/heater in a pipe 
                                    -- 1 == looks for and outputs all reactors/heaters in a pipe system, if it doesn't find any returns false
                                    -- 2 == same as 1, except that it returns with 0 if it runs into an entity in the rfpower.fcr_forbidden table
                                    --      note that if it returned with 0 it likely didn't put all entities in a network to rfpower.fcr_output
+rfpower.fcr_output = {}            -- table for mode 1 & 2
 rfpower.fcr_forbidden = {}         -- table for mode 2
-rfpower.fcr_output = {}            -- table for the above
 rfpower.fcr_processed = {}         -- table with already searched entities, should have starting entity's unit number at first
 rfpower.fcr_processed_size = 0     -- faster than #rfpower.fcr_processed or table_size(rfpower.fcr_processed)
 -- it might cause a stack overflow for huge pipe networks (with >~16000 pipes according to the internet), but let's hope that won't an issue?
@@ -80,8 +80,9 @@ local heater_capacity = 400e6/60 --J/t
 function rfpower.add_to_network(network, entity)
     if entity.name == "rf-m-heater" then
         network.heaters[entity.unit_number] = entity
-        --network.heater_count = network.heater_count + 1
+        network.heater_count = network.heater_count + 1
         network.heater_power = heater_capacity*table_size(network.heaters)
+        network.heater_override[entity.unit_number] = "left"
     elseif entity.name == "rf-m-reactor" then
         network.reactors[entity.unit_number] = entity
         --network.reactor_count = network.reactor_count + 1
@@ -93,10 +94,10 @@ end
 function rfpower.new_network(entities)
     local network = {
         reactors = {},
-        heaters = {},
-        --reactor_count = 0,
-        --heater_count = 0,
         reactor_volume = 0,
+
+        heaters = {},
+        heater_count = 0,
         heater_power = 0,
 
         plasma_heating = 0,
@@ -115,6 +116,8 @@ function rfpower.new_network(entities)
         systems = "left",
         heating = "left",
         magnetic_field = "left",
+        heater_override = {},
+        heater_override_slider = {},
 
         deuterium_input = 0,
         deuterium_removal = 0,
@@ -203,6 +206,12 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
             end
             -- #endregion --
         elseif event.created_entity.name:sub(1,5) == "rf-m-" then
+            -- #region SPAWN EEI FOR HEATERS --
+            if event.created_entity.name == "rf-m-heater" then
+                event.created_entity.surface.create_entity{name="rf-heater-eei", position=event.created_entity.position, force=event.created_entity.force}
+            end
+            -- #endregion --
+
             -- #region UPDATE NETWORKS ON ENTITY PLACEMENT --
             local found = {}
             local found_len = 0
@@ -270,6 +279,7 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
                 global.entities[event.created_entity.unit_number] = global.networks_len
                 global.networks[global.networks_len] = rfpower.new_network{event.created_entity}
                 print_log(event.created_entity.name:sub(6).." added to new network #"..global.networks_len)
+                event.created_entity.active = false
             end
 
             --log(serpent.block{len = global.networks_len, e = global.entities, n = global.networks})
@@ -307,20 +317,30 @@ script.on_event({
             end
         -- #endregion --
         elseif event.entity.name:sub(1,5) == "rf-m-" then
+            -- #region DELETE EEI FOR HEATERS --
+            if event.entity.name == "rf-m-heater" then
+                local entity = event.entity.surface.find_entity("rf-heater-eei", {event.entity.position.x+0.5,event.entity.position.y+0.5})
+                if entity ~= nil then entity.destroy() end
+            end
+            -- #endregion --
+
             -- #region REMOVE HEATER/REACTOR FROM + DELETE NETWORK --
             if event.entity.name == "rf-m-heater" or rfpower.reactors[event.entity.name] then
+                event.entity.active = false
+
                 local un = event.entity.unit_number
                 local network_id = global.entities[un]
-    
+
                 global.networks[network_id][event.entity.name:sub(6).."s"][un] = nil
                 global.entities[un] = nil
-    
+
                 if event.entity.name == "rf-m-heater" then
-                    global.networks[network_id].heater_power = heater_capacity*table_size(global.networks[network_id].heaters)
+                    global.networks[network_id].heater_count = global.networks[network_id].heater_count - 1
+                    global.networks[network_id].heater_power = heater_capacity*global.networks[network_id].heater_count
                 else
                     global.networks[network_id].reactor_volume = reactor_volume*table_size(global.networks[network_id].reactors)
                 end
-    
+
                 print_log(event.entity.name:sub(6).." removed from network #"..network_id
                     .." ("..table_size(global.networks[network_id].reactors).." reactors at "..global.networks[network_id].reactor_volume.."m^3, "
                     ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW)"

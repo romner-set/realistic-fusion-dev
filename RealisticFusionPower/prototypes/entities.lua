@@ -1046,6 +1046,19 @@ data:extend{
         effectivity = 1,
     },
     -- #endregion --
+
+    -- EEI FOR PLASMA HEATER --
+    {
+        type = "electric-energy-interface",
+        name = "rf-heater-eei",
+        not_selectable_in_game = true,
+        energy_source = {
+            type = "electric",
+            usage_priority = "primary-input",
+            input_flow_limit = "1TW", --not actual max pwoer
+            drain = "0W"
+        },
+    }
 }
 
 -- #region NEUTRONIC ICF REACTOR --
