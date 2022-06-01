@@ -1,8 +1,9 @@
 function rfpower.update_heater_power(network)
     network.heater_power = 0
-    for _,heater in network.heaters do
-        network.heater_power = network.heater_power + 1
+    for un,heater in pairs(network.heaters) do
+        network.heater_power = network.heater_power + (network.heater_override_slider[un] or network.plasma_heating)
     end
+    network.heater_power = (network.heater_power/100)*rfpower.heater_capacity
 end
 
 function rfpower.update_gui(event, value)
@@ -156,6 +157,10 @@ function rfpower.update_gui(event, value)
         end
     end
     -- #endregion --
+
+    if name:find("heat") then
+        rfpower.update_heater_power(n)
+    end
 end
 
 -- #region EVENT HANDLERS --

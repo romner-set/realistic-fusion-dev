@@ -124,7 +124,7 @@ end
 -- #region MAIN FUNCTION --
 
 return function(network, current_tick) --runs on_tick, per network
-    if false then --current_tick%20==0 then
+    if false then --TODO current_tick%20==0 then
         local dd_count = 0
         for _,e in pairs(network.heaters) do
             dd_count = dd_count + e.get_fluid_count("rf-deuterium")
@@ -158,7 +158,6 @@ return function(network, current_tick) --runs on_tick, per network
     network.total_plasma = (network.deuterium + network.tritium + network.helium_3)/plasma_volume
     --log(serpent.line{network.deuterium, network.tritium, network.helium_3})
     rfpower.update_gui_bar(network, "total_plasma", plasma_volume, "m³", network.total_plasma*plasma_volume)
-    local current_heating = network.heater_power/100*network.plasma_heating
     local divertor_strength = max_divertor_strength*network.divertor_strength/100
     local max_particles = (1e20*plasma_volume)^2
     local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the network not produce any net energy
@@ -257,7 +256,7 @@ return function(network, current_tick) --runs on_tick, per network
         local fusion_energy = (particle_count_in_plasma*fusion_factor*dt_energy*5e18)/60]]
 
         -- #region OTHER SIMULATIONS --
-        local energy_in = (current_heating + max_field_strength/100*network.magnetic_field_strength + divertor_strength/5)*60/1e6
+        local energy_in = (network.heater_power + max_field_strength/100*network.magnetic_field_strength + divertor_strength/5)*60/1e6
 
         if network.systems == "right" then
             energy_in = energy_in + systems_consumption*60/1e6
@@ -279,7 +278,7 @@ return function(network, current_tick) --runs on_tick, per network
         end
         
         local current_temp = network.plasma_temperature + (
-            current_heating
+            network.heater_power
             - network.plasma_temperature^energy_loss - network.plasma_temperature*energy_loss*2e4 --not realistic at all, but it seems to work well gameplay-wise
             + fusion_energy*0.25
         )/(plasma_mass*5920.5) --temp = energy/(mass*specific_heat)
@@ -299,12 +298,13 @@ return function(network, current_tick) --runs on_tick, per network
         -- #endregion --
     
         --if fusion_energy ~= 0 then log(fusion_energy*60/1e6) end
-        --if current_tick%60==0 then
+        if current_tick%60==0 then
+            game.print(network.heater_power*60/1e6 .."MW ("..network.heater_power/rfpower.heater_capacity*100 .."%)")
             --game.print(network.wall_integrity)
             --game.print((network.plasma_temperature*1e6)/k_per_ev)
             --game.print(serpent.line(rfpower.estimate_r((network.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))
             --game.print(serpent.line{particle_counts_in_plasma,  current_temp, (current_temp*1e6)/k_per_ev, network.fusion_rate, network.fusion_rate*60/1e6, energy_loss_per_MK*network.plasma_temperature*(math.math.random()+0.5)*60/1e6})
-        --end
+        end
     elseif current_tick%20==0 then --check if everything is at 0, make it so
         if network.plasma_temperature ~= 0 then network.plasma_temperature = 0; rfpower.update_gui_bar(network, "plasma_temperature", 200, " M°C", 0) end
         if network.energy_input ~= 0 then network.energy_input = 0; rfpower.update_gui_bar(network, "energy_input", 1000, "MW") end

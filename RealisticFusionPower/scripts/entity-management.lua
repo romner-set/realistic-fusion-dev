@@ -75,18 +75,18 @@ function rfpower.find_connections(entity, processed, output_all, forbidden)
     if rfpower.fcr_mode == 1 then return rfpower.fcr_output[1] or false else return r end
 end
 
-local reactor_volume = 840 --m^3; the same as ITER
-local heater_capacity = 400e6/60 --J/t
+rfpower.reactor_volume = 840 --m^3; the same as ITER
+rfpower.heater_capacity = 400e6/60 --J/t
 function rfpower.add_to_network(network, entity)
     if entity.name == "rf-m-heater" then
         network.heaters[entity.unit_number] = entity
-        network.heater_count = network.heater_count + 1
-        network.heater_power = heater_capacity*table_size(network.heaters)
+        --network.heater_count = network.heater_count + 1
+        rfpower.update_heater_power(network)
         network.heater_override[entity.unit_number] = "left"
     elseif entity.name == "rf-m-reactor" then
         network.reactors[entity.unit_number] = entity
         --network.reactor_count = network.reactor_count + 1
-        network.reactor_volume = reactor_volume*table_size(network.reactors)
+        network.reactor_volume = rfpower.reactor_volume*table_size(network.reactors)
     end --TODO elseif aneutronic
 end
 
@@ -97,7 +97,7 @@ function rfpower.new_network(entities)
         reactor_volume = 0,
 
         heaters = {},
-        heater_count = 0,
+        --heater_count = 0,
         heater_power = 0,
 
         plasma_heating = 0,
@@ -152,6 +152,19 @@ end
 -- #region EVENT HANDLERS --
 
  -- #region ON BUILT --
+function rfpower.copy_gui_handles(network_old, network_new)
+    for elem_type, players in pairs(network_old.guis) do
+        for player_id, elems in pairs(players) do
+            for elem_name, elem in pairs(players) do
+                if  network_new.guis[elem_type]
+                and network_new.guis[elem_type][player_id]
+                and network_new.guis[elem_type][player_id][elem_name] then
+                    network_new.guis[elem_type][player_id][elem_name] = elem
+                end
+            end
+        end
+    end
+end
 script.on_event({defines.events.script_raised_built, defines.events.on_robot_built_entity, defines.events.on_built_entity}, function(event)
     try_catch(function()
         if rfpower.icf_reactors[event.created_entity.name] then
@@ -243,19 +256,36 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
                                 goto continue
                             end
                         end
-                        
-                        for _,r in pairs(global.networks[network_id].reactors) do
-                            global.entities[r.unit_number] = first
+
+                        rfpower.copy_gui_handles(global.networks[network_id], global.networks[first]) --TODO TEST IN MULTIPLAYER
+
+                        for un,r in pairs(global.networks[network_id].reactors) do
+                            global.entities[un] = first
                             rfpower.add_to_network(global.networks[first], r)
                         end
-                        for _,h in pairs(global.networks[network_id].heaters) do
-                            global.entities[h.unit_number] = first
+                        for un,h in pairs(global.networks[network_id].heaters) do
+                            global.entities[un] = first
                             rfpower.add_to_network(global.networks[first], h)
+
+                            if global.networks[network_id].heater_override[un] == "left" then --update heater overrides
+                                global.networks[first].heater_override_slider[un] = global.networks[first].plasma_heating
+                                rfpower.update_heater_power(global.networks[first])
+
+                                for _,sliders in pairs(global.networks[first].guis.sliders) do
+                                    for _name,slider in pairs(sliders) do
+                                        if slider.name == "rf-heater-override-slider" then
+                                            slider.slider_value = global.networks[first].plasma_heating
+                                            slider.parent["rf-".._name.."-value-frame"]["rf-".._name.."-value"].caption = string.sub(global.networks[first].plasma_heating.."%", 1,3)
+                                        end
+                                    end
+                                end
+                            else global.networks[first].heater_override[un] = "right" end
                         end
 
                         print_log("merged network #"..network_id.." to network #"..first
                             .." ("..table_size(global.networks[first].reactors).." reactors at "..global.networks[first].reactor_volume.."m^3, "
-                            ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6*60 .. "MW)"
+                            ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6*60 .. "MW ("
+                            ..global.networks[first].heater_power/rfpower.heater_capacity*100 .."%))"
                         )
                     
                         global.networks[network_id] = nil
@@ -267,6 +297,12 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
                 if event.created_entity.name == "rf-m-heater" or rfpower.reactors[event.created_entity.name] then
                     rfpower.add_to_network(global.networks[first], event.created_entity)
                     global.entities[event.created_entity.unit_number] = first
+                    
+                    if event.created_entity.name == "rf-m-heater" then --update override
+                        global.networks[first].heater_override_slider[event.created_entity.unit_number] = global.networks[first].plasma_heating
+                        rfpower.update_heater_power(global.networks[first])
+                    end
+
                     print_log(
                         event.created_entity.name:sub(6).." added to network #"..first
                         .." ("..table_size(global.networks[first].reactors).." reactors at "..global.networks[first].reactor_volume.."m^3, "
@@ -335,15 +371,16 @@ script.on_event({
                 global.entities[un] = nil
 
                 if event.entity.name == "rf-m-heater" then
-                    global.networks[network_id].heater_count = global.networks[network_id].heater_count - 1
-                    global.networks[network_id].heater_power = heater_capacity*global.networks[network_id].heater_count
+                    --global.networks[network_id].heater_count = global.networks[network_id].heater_count - 1
+                    rfpower.update_heater_power(global.networks[network_id])
                 else
-                    global.networks[network_id].reactor_volume = reactor_volume*table_size(global.networks[network_id].reactors)
+                    global.networks[network_id].reactor_volume = rfpower.reactor_volume*table_size(global.networks[network_id].reactors)
                 end
 
                 print_log(event.entity.name:sub(6).." removed from network #"..network_id
                     .." ("..table_size(global.networks[network_id].reactors).." reactors at "..global.networks[network_id].reactor_volume.."m^3, "
-                    ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW)"
+                    ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW ("
+                    ..global.networks[network_id].heater_power/rfpower.heater_capacity*100 .."%))"
                 )
                 --print_log(serpent.line(global.networks[network_id].heaters))
                 if table_size(global.networks[network_id].reactors) == 0 and table_size(global.networks[network_id].heaters) == 0 then --delete network
@@ -380,7 +417,8 @@ script.on_event({
 
                     print_log("created new network #"..global.networks_len.." from #"..network_id
                         .." ("..table_size(global.networks[network_id].reactors).." reactors at "..global.networks[network_id].reactor_volume.."m^3, "
-                        ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW)"
+                        ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW ("
+                        ..global.networks[network_id].heater_power/rfpower.heater_capacity*100 .."%))"
                     )
                 end
                 
