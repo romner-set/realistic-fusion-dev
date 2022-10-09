@@ -95,6 +95,8 @@ Additional:
     [A3] https://arxiv.org/abs/2104.06251
     [A4] https://www.researchgate.net/publication/328024871_Fusion_a_true_challenge_for_an_enormous_reward
     [A5] https://scipython.com/blog/nuclear-fusion-cross-sections/
+    [A6] https://www.sciencedirect.com/topics/earth-and-planetary-sciences/plasma-current
+    [A7] http://fusionwiki.ciemat.es/wiki/Main_Page
     
 If you can't afford to pay for some of the articles, you absolutely should not use https://sci-hub.se/ to access them for free.
 You also should not put https://sci-hub.se/ right in front of the pay-walled URL, as that would take you directly to the paper.

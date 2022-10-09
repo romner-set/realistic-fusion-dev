@@ -13,9 +13,12 @@ local avogadros_constant = 6.02214086e23
 local amu_per_kg = avogadros_constant*1e3
 local c = 299792458
 local cs = c^2
+local pm_amu = { --amu (g/mol); particle masses
+    T = 3.01604928, D = 2.013553212745, He3 = 3.016029, He4 = 4.002603254
+}
 local pm = { --kg; particle masses
-    T = 3.01604928/amu_per_kg, D = 2.013553212745/amu_per_kg, He3 = 3.016029/amu_per_kg,
-    He4 = 4.002603254/amu_per_kg, n = 1.67492749804e-27, p = 1.67262192e-27
+    T = pm_amu.T/amu_per_kg, D = pm_amu.D/amu_per_kg, He3 = pm_amu.He3/amu_per_kg,
+    He4 = pm_amu.He4/amu_per_kg, n = 1.67492749804e-27, p = 1.67262192e-27
 }
 local reaction_energies = {               --J; seems to be slightly off (17.08MeV for D-T instead of 17.6 for example), but it seems to be at least 95% correct
     ["D-D_He3"] = (pm.D*2 - pm.He3-pm.n)*cs, --plus I can't find values for anything other than D-T anywhere so...
@@ -27,6 +30,10 @@ local reaction_energies = {               --J; seems to be slightly off (17.08Me
     ["He3-He3"] = (pm.He3+pm.He3 - pm.He4-pm.p-pm.p)*cs,
     ["T-He3"] = (pm.T+pm.He3 - pm.He4-pm.n-pm.p)*cs,
 }
+local ml_per_unit = 25000/523
+local atmosphere_density = 1.204 --kg/m^3, at STP
+
+
 -- #endregion --
 
 -- #region DATASETS --
@@ -111,10 +118,12 @@ function rfpower.update_gui_bar(network, name, max, unit, value)
     if network.systems == "right" then
         value = value or network[name]
         for idx, v in pairs(network.guis.bars) do
-            local new_name = name:gsub("_","-")
-            if v[new_name] and v[new_name].valid then
-                v[new_name].value = value/max
-                v[new_name].parent["rf-"..new_name.."-value-frame"]["rf-"..new_name.."-value"].caption = string.sub(value, 1,6)..unit
+            for gui_id, _v in pairs(v) do
+                local new_name = name:gsub("_","-")
+                if _v[new_name] and _v[new_name].valid then
+                    _v[new_name].value = value/max
+                    _v[new_name].parent["rf-"..new_name.."-value-frame"]["rf-"..new_name.."-value"].caption = string.sub(value, 1,6)..unit
+                end
             end
         end
     end
@@ -147,7 +156,7 @@ return function(network, current_tick) --runs on_tick, per network
         if old ~= network[k] then
             if network[k] < 0 then network[k] = 0
             elseif network[k] > plasma_volume*0.95 then network[k] = plasma_volume*0.95 end
-            rfpower.update_gui_bar(network, k, plasma_volume, "m³")
+            rfpower.update_gui_bar(network, k, plasma_volume, "u")
             --network.plasma_temperature = network.plasma_temperature*(plasma_mass * 5920.5) --temp = energy/(mass*specific_heat)
         end
     end
@@ -157,10 +166,10 @@ return function(network, current_tick) --runs on_tick, per network
     -- #region --TODO TESTING VARIABLES --
     network.total_plasma = (network.deuterium + network.tritium + network.helium_3)/plasma_volume
     --log(serpent.line{network.deuterium, network.tritium, network.helium_3})
-    rfpower.update_gui_bar(network, "total_plasma", plasma_volume, "m³", network.total_plasma*plasma_volume)
+    rfpower.update_gui_bar(network, "total_plasma", plasma_volume, "u", network.total_plasma*plasma_volume)
     local divertor_strength = max_divertor_strength*network.divertor_strength/100
     local max_particles = (1e20*plasma_volume)^2
-    local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the network not produce any net energy
+    local energy_loss = 120/60  --J/t/K; completely arbitrary value, as setting it to something truly realistic would probably just make the reactors not produce any net energy
     -- #endregion --
 
     if network.total_plasma > 0 then
@@ -168,50 +177,50 @@ return function(network, current_tick) --runs on_tick, per network
         local fusion_energy = 0
 
         if network.deuterium > 0 then
-            local d_level = network.deuterium/plasma_volume
-            local t_level = network.tritium/plasma_volume
-            local he3_level = network.helium_3/plasma_volume
-            --log(serpent.line{d_level, t_level, he3_level})
+            local d_number_density   = network.deuterium * ml_per_unit * atmosphere_density*1e-3 / pm_amu.D   * avogadros_constant   / plasma_volume
+            local t_number_density   = network.tritium   * ml_per_unit * atmosphere_density*1e-3 / pm_amu.T   * avogadros_constant   / plasma_volume
+            local he3_number_density = network.helium_3  * ml_per_unit * atmosphere_density*1e-3 / pm_amu.He3 * avogadros_constant   / plasma_volume
+            --log(serpent.line{d_number_density, t_number_density, he3_number_density})
 
-            local dd_t_chance = rfpower.estimate_r(network, "D-D_T")*(d_level^2)
-            local dd_he3_chance = rfpower.estimate_r(network, "D-D_He3")*(d_level^2)
-            local dt_chance = rfpower.estimate_r(network, "D-T")*d_level*t_level
-            local dhe3_chance = rfpower.estimate_r(network, "D-He3")*d_level*he3_level
-            local tt_chance = rfpower.estimate_r(network, "T-T")*(t_level^2)
-            local the3_chance = rfpower.estimate_r(network, "T-He3")*t_level*he3_level
-            local he3he3_chance = rfpower.estimate_r(network, "He3-He3")*(he3_level^2)
+            local dd_t_chance = rfpower.estimate_r(network, "D-D_T")*(d_number_density*d_number_density)
+            local dd_he3_chance = rfpower.estimate_r(network, "D-D_He3")*(d_number_density*d_number_density)
+            local dt_chance = rfpower.estimate_r(network, "D-T")*d_number_density*t_number_density
+            local dhe3_chance = rfpower.estimate_r(network, "D-He3")*d_number_density*he3_number_density
+            local tt_chance = rfpower.estimate_r(network, "T-T")*(t_number_density*t_number_density)
+            local the3_chance = rfpower.estimate_r(network, "T-He3")*t_number_density*he3_number_density
+            local he3he3_chance = rfpower.estimate_r(network, "He3-He3")*(he3_number_density*t_number_density)
 
             --log(serpent.block{dd_t_chance, dd_he3_chance, dt_chance, dhe3_chance, tt_chance, the3_chance, he3he3_chance})
 
-            fusion_energy = max_particles*joules_per_ev*6e15*(
-                dd_t_chance + dd_t_chance
-                + dd_he3_chance
-                + dt_chance
-                + dhe3_chance
-                + tt_chance
-                + the3_chance
-                + he3he3_chance
+            fusion_energy = plasma_volume*joules_per_ev*(
+                  dd_t_chance   * reaction_energies["D-D_T"]
+                + dd_he3_chance * reaction_energies["D-D_He3"]
+                + dt_chance     * reaction_energies["D-T"]
+                + dhe3_chance   * reaction_energies["D-He3"]
+                + tt_chance     * reaction_energies["T-T"]
+                + the3_chance   * reaction_energies["T-He3"]
+                + he3he3_chance * reaction_energies["He3-He3"]
             )/60
 
-            local d_loss = (dd_t_chance + dd_he3_chance)*2 + (dt_chance + dhe3_chance)
-            local t_loss = tt_chance*2 + (dt_chance + the3_chance) - dd_t_chance
-            local he3_loss = he3he3_chance*2 + (dhe3_chance + the3_chance) - dd_he3_chance
-            if d_loss ~= d_loss or d_loss == 1/0 or d_loss == -1/0 then d_loss = 0 end
-            if t_loss ~= t_loss or t_loss == 1/0 or d_loss == -1/0 then t_loss = 0 end
-            if he3_loss ~= he3_loss or he3_loss == 1/0 or d_loss == -1/0 then he3_loss = 0 end
+            --local d_loss = (dd_t_chance + dd_he3_chance)*2 + (dt_chance + dhe3_chance)
+            --local t_loss = tt_chance*2 + (dt_chance + the3_chance) - dd_t_chance
+            --local he3_loss = he3he3_chance*2 + (dhe3_chance + the3_chance) - dd_he3_chance
+            --if d_loss ~= d_loss or d_loss == 1/0 or d_loss == -1/0 then d_loss = 0 end
+            --if t_loss ~= t_loss or t_loss == 1/0 or d_loss == -1/0 then t_loss = 0 end
+            --if he3_loss ~= he3_loss or he3_loss == 1/0 or d_loss == -1/0 then he3_loss = 0 end
 
             --log(serpent.line{d_loss*2e34, t_loss*2e34, he3_loss*2e34})
 
-            network.deuterium = network.deuterium - d_loss*2e34
-            network.tritium = network.tritium - t_loss*2e34
-            network.helium_3 = network.helium_3 - he3_loss*2e34
-            if network.deuterium < 0 then network.deuterium = 0 end
-            if network.tritium < 0 then network.tritium = 0 end
-            if network.helium_3 < 0 then network.helium_3 = 0 end
+            --network.deuterium = network.deuterium - d_loss*2e34
+            --network.tritium = network.tritium - t_loss*2e34
+            --network.helium_3 = network.helium_3 - he3_loss*2e34
+            --if network.deuterium < 0 then network.deuterium = 0 end
+            --if network.tritium < 0 then network.tritium = 0 end
+            --if network.helium_3 < 0 then network.helium_3 = 0 end
             
-            rfpower.update_gui_bar(network, "deuterium", plasma_volume, "m³", math.floor(network.deuterium*1000)/1000)
-            rfpower.update_gui_bar(network, "tritium", plasma_volume, "m³", math.floor(network.tritium*1000)/1000)
-            rfpower.update_gui_bar(network, "helium_3", plasma_volume, "m³", math.floor(network.helium_3*1000)/1000)
+            --rfpower.update_gui_bar(network, "deuterium", plasma_volume, "u", math.floor(network.deuterium*1000)/1000)
+            --rfpower.update_gui_bar(network, "tritium", plasma_volume, "u", math.floor(network.tritium*1000)/1000)
+            --rfpower.update_gui_bar(network, "helium_3", plasma_volume, "u", math.floor(network.helium_3*1000)/1000)
 
             --[[fusion_energy = max_particles*((
                     network.deuterium*(
@@ -279,10 +288,11 @@ return function(network, current_tick) --runs on_tick, per network
         
         local current_temp = network.plasma_temperature + (
             network.heater_power
-            - network.plasma_temperature^energy_loss - network.plasma_temperature*energy_loss*2e4 --not realistic at all, but it seems to work well gameplay-wise
-            + fusion_energy*0.25
+            - 0.05
+            --- network.plasma_temperature^energy_loss - network.plasma_temperature*energy_loss*2e4 --not realistic at all, but it seems to work well gameplay-wise
+            --+ fusion_energy
         )/(plasma_mass*5920.5) --temp = energy/(mass*specific_heat)
-        if current_temp < 0 or current_temp ~= current_temp then current_temp = 0 end
+        --if current_temp < 0 or current_temp ~= current_temp then current_temp = 0 end
         --log(serpent.block{current_temp, network.plasma_temperature, plasma_mass})
         -- #endregion --
 
@@ -296,10 +306,11 @@ return function(network, current_tick) --runs on_tick, per network
         network.plasma_temperature = current_temp
         rfpower.update_gui_bar(network, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
         -- #endregion --
-    
-        --if fusion_energy ~= 0 then log(fusion_energy*60/1e6) end
+
         if current_tick%60==0 then
-            game.print(network.heater_power*60/1e6 .."MW ("..network.heater_power/rfpower.heater_capacity*100 .."%)")
+            game.print(network.wall_integrity)
+            log(network.wall_integrity)
+            --game.print(network.heater_power*60/1e6 .."MW ("..network.heater_power/rfpower.heater_capacity*100 .."%)")
             --game.print(network.wall_integrity)
             --game.print((network.plasma_temperature*1e6)/k_per_ev)
             --game.print(serpent.line(rfpower.estimate_r((network.plasma_temperature*1e6)/k_per_ev, d_t, d_t_size)))

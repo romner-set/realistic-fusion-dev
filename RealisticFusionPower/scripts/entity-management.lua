@@ -136,7 +136,7 @@ function rfpower.new_network(entities)
         recipe = nil,
         controller = nil,
 
-        guis = {sliders = {}, bars = {}, switches = {}, choice_elems = {}, sprites = {}, sprite_idxs = {}},
+        guis = {gui_ids = {}, sliders = {}, bars = {}, switches = {}, checkboxes = {}, choice_elems = {}, sprites = {}, sprite_idxs = {}},
 
         cached_reactivity = {}, --indexes in rfp_datasets
     }

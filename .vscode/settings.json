@@ -21,5 +21,12 @@
         "default_circuit_wire_max_distance",
         "table_size",
         "serpent"
+    ],
+    "factorio.versions": [
+        {
+            "name": "Steam",
+            "factorioPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio\\bin\\x64\\factorio.exe",
+            "active": true
+        }
     ]
 }
