@@ -14,7 +14,7 @@ rfpower.fcr_output = {}            -- table for mode 1 & 2
 rfpower.fcr_forbidden = {}         -- table for mode 2
 rfpower.fcr_processed = {}         -- table with already searched entities, should have starting entity's unit number at first
 rfpower.fcr_processed_size = 0     -- faster than #rfpower.fcr_processed or table_size(rfpower.fcr_processed)
--- it might cause a stack overflow for huge pipe networks (with >~16000 pipes according to the internet), but let's hope that won't an issue?
+-- it might cause a stack overflow for huge pipe networks (with >~16000 pipes according to the internet), but let's hope that won't be an issue?
 --TODO?: process straight sections only once instead of processing every pipe in them
 function rfpower.find_connections_recursive(entity)
     for _,e in pairs(entity.neighbours) do
@@ -75,8 +75,6 @@ function rfpower.find_connections(entity, processed, output_all, forbidden)
     if rfpower.fcr_mode == 1 then return rfpower.fcr_output[1] or false else return r end
 end
 
-rfpower.reactor_volume = 840 --m^3; the same as ITER
-rfpower.heater_capacity = 400e6/60 --J/t
 function rfpower.add_to_network(network, entity)
     if entity.name == "rf-m-heater" then
         network.heaters[entity.unit_number] = entity
@@ -86,7 +84,7 @@ function rfpower.add_to_network(network, entity)
     elseif entity.name == "rf-m-reactor" then
         network.reactors[entity.unit_number] = entity
         --network.reactor_count = network.reactor_count + 1
-        network.reactor_volume = rfpower.reactor_volume*table_size(network.reactors)
+        network.reactor_volume = rfpower.const.reactor_volume*table_size(network.reactors)
     end --TODO elseif aneutronic
 end
 
@@ -109,7 +107,7 @@ function rfpower.new_network(entities)
         energy_input = 0,
         energy_output = 0,
         total_plasma = 0.5,
-        plasma_density = 0.5,
+        plasma_volume = 0,
         plasma_temperature = 0,
         wall_integrity = 100,
 
@@ -284,8 +282,8 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
 
                         print_log("merged network #"..network_id.." to network #"..first
                             .." ("..table_size(global.networks[first].reactors).." reactors at "..global.networks[first].reactor_volume.."m^3, "
-                            ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6*60 .. "MW ("
-                            ..global.networks[first].heater_power/rfpower.heater_capacity*100 .."%))"
+                            ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6 .. "MW ("
+                            ..global.networks[first].heater_power/rfpower.const.heater_capacity*100 .."%))"
                         )
                     
                         global.networks[network_id] = nil
@@ -306,7 +304,7 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
                     print_log(
                         event.created_entity.name:sub(6).." added to network #"..first
                         .." ("..table_size(global.networks[first].reactors).." reactors at "..global.networks[first].reactor_volume.."m^3, "
-                        ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6*60 .. "MW)"
+                        ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6 .. "MW)"
                     )
                 end
             elseif event.created_entity.name == "rf-m-heater" or rfpower.reactors[event.created_entity.name] then
@@ -379,8 +377,8 @@ script.on_event({
 
                 print_log(event.entity.name:sub(6).." removed from network #"..network_id
                     .." ("..table_size(global.networks[network_id].reactors).." reactors at "..global.networks[network_id].reactor_volume.."m^3, "
-                    ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW ("
-                    ..global.networks[network_id].heater_power/rfpower.heater_capacity*100 .."%))"
+                    ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6 .. "MW ("
+                    ..global.networks[network_id].heater_power/rfpower.const.heater_capacity*100 .."%))"
                 )
                 --print_log(serpent.line(global.networks[network_id].heaters))
                 if table_size(global.networks[network_id].reactors) == 0 and table_size(global.networks[network_id].heaters) == 0 then --delete network
@@ -417,8 +415,8 @@ script.on_event({
 
                     print_log("created new network #"..global.networks_len.." from #"..network_id
                         .." ("..table_size(global.networks[network_id].reactors).." reactors at "..global.networks[network_id].reactor_volume.."m^3, "
-                        ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6*60 .. "MW ("
-                        ..global.networks[network_id].heater_power/rfpower.heater_capacity*100 .."%))"
+                        ..table_size(global.networks[network_id].heaters).." heaters at "..global.networks[network_id].heater_power/1e6 .. "MW ("
+                        ..global.networks[network_id].heater_power/rfpower.const.heater_capacity*100 .."%))"
                     )
                 end
                 

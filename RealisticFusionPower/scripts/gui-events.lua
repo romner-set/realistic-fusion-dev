@@ -3,12 +3,12 @@ function rfpower.update_heater_power(network)
     for un,heater in pairs(network.heaters) do
         network.heater_power = network.heater_power + (network.heater_override_slider[un] or network.plasma_heating)
     end
-    network.heater_power = (network.heater_power/100)*rfpower.heater_capacity
+    network.heater_power = network.heater_power*rfpower.const.heater_capacity/100
 end
 
 function rfpower.update_gui(event, value)
     local name = event.element.name:sub(4)
-    game.print(name.." "..name:sub(1,30).." "..name:sub(32))
+    --game.print(name.." "..name:sub(1,30).." "..name:sub(32))
     local un = event.element.tags.unit_number
     local n = global.networks[global.entities[un]]
 

@@ -33,6 +33,7 @@ remote.add_interface("rfcore", { --make sure to call both on_init and on_load
         current = nil --removes table, again hopefully the actual one in rfcore
     end,
     return_value = function(...) return get_nested_value(...) end,
+---@diagnostic disable-next-line: redundant-parameter
     call_func = function(func, ...) return rfcore[func](...) end,
     copy_all = function(key) return rfcore end,
     overwrite_all = function(overwrite) rfcore = overwrite end --I don't recommend using this, but it might be useful in some cases

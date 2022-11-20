@@ -97,6 +97,9 @@ Additional:
     [A5] https://scipython.com/blog/nuclear-fusion-cross-sections/
     [A6] https://www.sciencedirect.com/topics/earth-and-planetary-sciences/plasma-current
     [A7] http://fusionwiki.ciemat.es/wiki/Main_Page
+    [A8] https://www-pub.iaea.org/MTCD/publications/PDF/csp_019c/pdf/ctp_07.pdf
+    [A9a] https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=H
+    [A9b] https://physics.nist.gov/cgi-bin/Compositions/stand_alone.pl?ele=He
     
 If you can't afford to pay for some of the articles, you absolutely should not use https://sci-hub.se/ to access them for free.
 You also should not put https://sci-hub.se/ right in front of the pay-walled URL, as that would take you directly to the paper.

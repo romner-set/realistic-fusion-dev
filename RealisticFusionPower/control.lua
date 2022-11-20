@@ -77,6 +77,7 @@ remote.add_interface("rfpower", { --make sure to call both on_init and on_load
 
 -- #region SCRIPT IMPORTS --
 -- control stage doesn't have any nested requires, everything's here
+require("scripts.constants")
 local plasma_anim_func   = require("scripts.gui")           -- creates the GUI when a player opens a reactor/heater, returned func animates the plasma visualization
 local reactor_logic_func = require("scripts.reactor-logic") -- simulates the fusion reactions/heating/etc of reactors
 require("scripts.entity-management")                        -- manages reactor/heater networks, ICF reactors, etc.

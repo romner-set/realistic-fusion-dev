@@ -170,8 +170,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
             if event.entity.name == "rf-m-reactor" then
 ---------------- #region REACTOR GUI ----------------
                 local player = game.get_player(event.player_index)
-                if player.gui.screen[rfpower.gui_window_name] then player.opened = nil else
-                    local un = event.entity.unit_number
+                local un = event.entity.unit_number
+                if player.gui.screen[rfpower.gui_window_name.."-reactor-"..un] then player.opened = nil else
                     local network = global.networks[global.entities[un]]
 
                     -- #region WINDOW --
@@ -211,7 +211,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
 
                     for i,v in ipairs{
                         {["Fusion rate"] = {"", 100--[[TODO]]}, ["Energy input"] = {"MW", 1000}, ["Energy output"] = {"MW", 1000}},
-                        {["Total plasma"] = {"u", 100--[[TODO]]}, ["Plasma density"] = {"u/m³", 100--[[TODO]]}, ["Plasma temperature"] = {" M°C", 200}},
+                        {["Total plasma"] = {"u", 100--[[TODO]]}, ["Plasma volume"] = {"m³", 100--[[TODO]]}, ["Plasma temperature"] = {" M°C", 200}},
                         --{"Reactor wall integrity"},
                         --{"Tritium breeding rate"},
                     } do
@@ -399,8 +399,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
             elseif event.entity.name == "rf-m-heater" then
 ---------------- #region HEATER GUI ----------------
                 local player = game.get_player(event.player_index)
-                --if player.gui.screen[rfpower.gui_window_name] then player.opened = nil else
-                    local un = event.entity.unit_number
+                local un = event.entity.unit_number
+                if player.gui.screen[rfpower.gui_window_name.."-heater-"..un] then player.opened = nil else
                     local network = global.networks[global.entities[un]]
 
                     -- WINDOW --
@@ -432,35 +432,10 @@ script.on_event(defines.events.on_gui_opened, function(event)
                         unit_number=un, element=slider_flow, name="heater-override-slider", key="Plasma heating", suffix="%",
                         padleft=-1, value=network.heater_override_slider[un], enabled=(state == "right")
                     }
-
-                    -- #endregion --
-
-                    padding(content_flow)
-                    
-                    -- #region PLASMA TYPE SELECTION --
-                    local choice_elem_flow = content_flow.add{type="flow", name="rf-heater-plasma-type-flow", direction="horizontal"}
-                    choice_elem_flow.add{type="label", name="rf-heater-plasma-type-label", caption="Plasma type"}
-                        --.style.top_padding = 10
-                    paddingh(choice_elem_flow)
-                    network.guis.choice_elems[event.player_index][gui_id]["heater-plasma-type"] = choice_elem_flow.add{
-                        type = "choose-elem-button",
-                        name = "rf-heater-plasma-type",
-                        elem_type = "recipe",
-                        recipe = "rf-d-d-heating-1",
-                        elem_filters = {{
-                            filter = "has-product-fluid",
-                            elem_filters = {
-                                {filter = "name", name = "rf-deuterium-plasma"},
-                                {filter = "name", name = "rf-tritium-plasma"},
-                                {filter = "name", name = "rf-helium-3-plasma"},
-                            }
-                        }},
-                        tags={unit_number=un}
-                    }
                     -- #endregion --
 
                     player.opened = w
-                --end
+                end
 ---------------- #endregion ----------------
             end
         end
