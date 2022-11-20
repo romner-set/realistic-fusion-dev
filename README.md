@@ -51,6 +51,7 @@
 - ? Rewrite the GUI to use a library instead of the spaghetti code mess that I've created
 
 ## Installation
+Note: Don't use RFW or RFA yet, they're most likely broken.
 ### One-time
 If you don't care about updates and just want to try out the current version, simply download [this zip file](https://github.com/romner-set/realistic-fusion-dev/archive/refs/heads/master.zip) or clone the repo directly with [git](https://git-scm.com):  
 ```
