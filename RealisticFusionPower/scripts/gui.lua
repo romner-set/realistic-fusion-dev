@@ -175,7 +175,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     local network = global.networks[global.entities[un]]
 
                     -- #region WINDOW --
-                    local w,content_flow,gui_id = window(player, {1080, 440}, "Fusion reactor control", nil, un, "-reactor-"..un);
+                    local w,content_flow,gui_id = window(player, {1080, 470}, "Fusion reactor control", nil, un, "-reactor-"..un);
 
                     local content_sections = {}
                     for i,k in ipairs{"left", "center", "right"} do
@@ -210,7 +210,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     end
 
                     for i,v in ipairs{
-                        {["Fusion rate"] = {"", 100--[[TODO]]}, ["Energy input"] = {"MW", 1000}, ["Energy output"] = {"MW", 1000}},
+                        {["Energy input"] = {"MW", 1000}, ["Energy output"] = {"MW", 1000}},
                         {["Total plasma"] = {"u", 100--[[TODO]]}, ["Plasma volume"] = {"m³", 100--[[TODO]]}, ["Plasma temperature"] = {" M°C", 200}},
                         --{"Reactor wall integrity"},
                         --{"Tritium breeding rate"},
@@ -236,6 +236,10 @@ script.on_event(defines.events.on_gui_opened, function(event)
                             }
                         end
                     end
+
+                    padding(content_sections.left, 10)
+                    line(content_sections.left)
+                    padding(content_sections.left, 10)
                     -- #endregion --
 
                     -- #region RIGHT SIDE --
@@ -320,7 +324,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     gas_section("Tritium", 20)
                     gas_section("Helium-3", 7)
                     --gas_section("Helium-3", 7, {30,0}, 133)
-                    gas_section("Helium-4", 7, {-1,-1})
+                    gas_section("Helium-4", 7)
 
                     --[[network.guis.bars[event.player_index][gui_id]["lithium-stored"] = slider_progressbar(un, content_sections.right.add{type="flow", name="table-stats-right-lithium"},
                         "lithium-stored", "Lithium stored in reactor", "u",

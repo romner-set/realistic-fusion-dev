@@ -123,6 +123,8 @@ function rfpower.new_network(entities)
         tritium_removal = 0,
         helium_3_input = 0,
         helium_3_removal = 0,
+        helium_4_input = 0,
+        helium_4_removal = 0,
 
         deuterium = 0,
         tritium = 0,

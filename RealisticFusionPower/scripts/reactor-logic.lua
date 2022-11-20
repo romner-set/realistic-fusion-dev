@@ -122,7 +122,7 @@ return function(network, current_tick) --runs on_tick, per network
       + c.he4_heat_capacity * network.helium_4
     )*1e6
 
-    for _,k in ipairs{"deuterium", "tritium", "helium_3"} do
+    for _,k in ipairs{"deuterium", "tritium", "helium_3", "helium_4"} do
         local old = network[k]
         if network.total_plasma <= 0.95 and network[k.."_input"] > 0 then
             local e = network.plasma_temperature*heat_cap
