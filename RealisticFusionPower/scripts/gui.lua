@@ -175,7 +175,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     local network = global.networks[global.entities[un]]
 
                     -- #region WINDOW --
-                    local w,content_flow,gui_id = window(player, {1080, 470}, "Fusion reactor control", nil, un, "-reactor-"..un);
+                    local w,content_flow,gui_id = window(player, {1080, 490}, "Fusion reactor control", nil, un, "-reactor-"..un);
 
                     local content_sections = {}
                     for i,k in ipairs{"left", "center", "right"} do
@@ -240,6 +240,18 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     padding(content_sections.left, 10)
                     line(content_sections.left)
                     padding(content_sections.left, 10)
+
+                    local content_left_usage = content_sections.left.add{type="table", name="table-usage", column_count=5};
+                        content_left_usage.style.top_cell_padding = 3
+                        content_left_usage.style.bottom_cell_padding = 3
+
+                    for i,v in ipairs{"Deuterium", "Tritium", "Helium-3"} do
+                        network.guis.bars[event.player_index][gui_id][v:lower().."-usage"] = slider_progressbar{
+                            unit_number=un, element=content_left_usage, name=v:lower().."-usage", key=v.." usage/s",
+                            suffix="u", padleft=-1, padright=0, type="progressbar", value=network[v:lower().."_usage"],
+                            max_value=1, style="statistics_progressbar", slider_size=100, value_size=58
+                        }
+                    end
                     -- #endregion --
 
                     -- #region RIGHT SIDE --
@@ -427,7 +439,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
                     -- #endregion --
 
                     padding(content_flow)
-                    
+
                     -- #region OVERRIDE SLIDER --
                     local slider_flow = content_flow.add{type="flow", name="rf-heater-override-slider-flow", direction="horizontal"}
 

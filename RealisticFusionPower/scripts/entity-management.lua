@@ -119,10 +119,13 @@ function rfpower.new_network(entities)
 
         deuterium_input = 0,
         deuterium_removal = 0,
+        deuterium_usage = 0,
         tritium_input = 0,
         tritium_removal = 0,
+        tritium_usage = 0,
         helium_3_input = 0,
         helium_3_removal = 0,
+        helium_3_usage = 0,
         helium_4_input = 0,
         helium_4_removal = 0,
 

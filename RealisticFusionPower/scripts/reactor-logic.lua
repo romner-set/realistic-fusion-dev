@@ -206,15 +206,21 @@ return function(network, current_tick) --runs on_tick, per network
 
             --log("C: "..serpent.block{fusion_energy, dd_t_reactions, dd_he3_reactions, dt_reactions, dhe3_reactions, tt_reactions, the3_reactions, he3he3_reactions})
 
-            local d_loss = (dd_t_reactions + dd_he3_reactions)*2 + (dt_reactions + dhe3_reactions)
-            local t_loss = tt_reactions*2 + (dt_reactions + the3_reactions) - dd_t_reactions
-            local he3_loss = he3he3_reactions*2 + (dhe3_reactions + the3_reactions) - dd_he3_reactions
-            local he4_created = tt_reactions + the3_reactions + he3he3_reactions + dt_reactions + dhe3_reactions
+            network.deuterium_usage = (-((dd_t_reactions + dd_he3_reactions)*2 + (dt_reactions + dhe3_reactions))) / c.atoms_per_unit
+            network.tritium_usage = (-(tt_reactions*2 + (dt_reactions + the3_reactions) - dd_t_reactions)) / c.atoms_per_unit
+            network.helium_3_usage = (-(he3he3_reactions*2 + (dhe3_reactions + the3_reactions) - dd_he3_reactions)) / c.atoms_per_unit
+            network.helium_4_usage = (tt_reactions + the3_reactions + he3he3_reactions + dt_reactions + dhe3_reactions) / c.atoms_per_unit
 
-            network.deuterium = network.deuterium - (d_loss      / c.atoms_per_unit)
-            network.tritium   = network.tritium   - (t_loss      / c.atoms_per_unit)
-            network.helium_3  = network.helium_3  - (he3_loss    / c.atoms_per_unit)
-            network.helium_4  = network.helium_4  + (he4_created / c.atoms_per_unit)
+            rfpower.update_gui_bar(network, "deuterium_usage", 1, "u", math.floor(network.deuterium_usage*1000000)/1000*60)
+            rfpower.update_gui_bar(network, "tritium_usage", 1, "u", math.floor(network.tritium_usage*1000)/1000*60)
+            rfpower.update_gui_bar(network, "helium_3_usage", 1, "u", math.floor(network.helium_3_usage*1000)/1000*60)
+            rfpower.update_gui_bar(network, "helium_4_usage", 1, "u", math.floor(network.helium_4_usage*1000)/1000*60)
+
+
+            network.deuterium = network.deuterium + (network.deuterium_usage / c.atoms_per_unit)
+            network.tritium   = network.tritium   + (network.tritium_usage   / c.atoms_per_unit)
+            network.helium_3  = network.helium_3  + (network.helium_3_usage  / c.atoms_per_unit)
+            network.helium_4  = network.helium_4  + (network.helium_4_usage  / c.atoms_per_unit)
             --if network.deuterium < 0 then network.deuterium = 0 end
             --if network.tritium < 0 then network.tritium = 0 end
             --if network.helium_3 < 0 then network.helium_3 = 0 end
@@ -307,6 +313,7 @@ return function(network, current_tick) --runs on_tick, per network
             )/(heat_cap*60) --temp = energy/heat_capacity
             --log(network.heater_power.." "..fusion_energy * network.plasma_volume..(1.04e-19 * (c.atoms_per_unit*network.total_plasma*plasma_capacity / network.plasma_volume)^2 * math.sqrt(current_temp*1e6) * network.plasma_volume * c.joules_per_ev))
             if current_temp < 0 then current_temp = 0 end
+            if (current_temp ~= current_temp) or current_temp > 1000 then current_temp = 1000 end
         --end
 
         --[[local current_temp = network.plasma_temperature + (
@@ -327,7 +334,7 @@ return function(network, current_tick) --runs on_tick, per network
         rfpower.update_gui_bar(network, "energy_output", 1000, "MW")
 
         network.plasma_temperature = current_temp
-        rfpower.update_gui_bar(network, "plasma_temperature", 200, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
+        rfpower.update_gui_bar(network, "plasma_temperature", 1000, " M°C", math.floor(current_temp)) --technically K but °C looks better and is practically the same here
         -- #endregion --
 
         if current_tick%60==0 then

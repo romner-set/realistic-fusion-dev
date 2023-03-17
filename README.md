@@ -2,9 +2,9 @@
 
 <h4 align="center">Repository for the WIP Realistic Fusion mod series for Factorio.
 <p align="center">
-<a href="#finished-features">Finished features</a> ⬥
-<a href="#plannedwip-features">Planned/WIP features</a> ⬥
-<a href="#installation">Installation</a> ⬥
+<a href="#finished-features">Finished features</a> ◈
+<a href="#plannedwip-features">Planned/WIP features</a> ◈
+<a href="#installation">Installation</a> ◈
 <a href="#links-to-the-mod-portal">Links</a>
 </p>
 
@@ -29,9 +29,7 @@
     - Because it only has to check Realistic Fusion pipes it shouldn't degrade performance, unless you do something like place 10000 of them at once into a single network.
 
 ## Planned/WIP features
-- Finish the RFP reactor overhaul
-- Write a manual for controlling the reactor
-- Add modes of operation to reactors:
+- Add modes of operation to the reactors:
   - Manual – controlled directly through the reactor's GUI
   - Remote-controlled – same as manual but can be opened with a GUI button from anywhere
   - Programmable – controlled through circuit signals
@@ -45,7 +43,9 @@
   - Helium-3 is produced from tritium decay or He3-suppressed D-D fusion
 - Balance everything for actual ingame use outside of sandbox
 - Completely recreate the tech tree
+- Write a manual for controlling the reactor
 - Write all sources into a readable format
+- Improve the formulas used for reactor simulation
 - Revamp RFA & RFW
 - Add compatibilities for other major mods
 - ? Rewrite the GUI to use a library instead of the spaghetti code mess that I've created

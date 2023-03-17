@@ -276,7 +276,7 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
                     n.heater_override[un] = "left"
                     n.heater_override_slider[un] = n.plasma_heating
                 end
-                
+
                 for _,sliders in pairs(n.guis.sliders) do
                     for _,_sliders in pairs(sliders) do
                         for _name,slider in pairs(_sliders) do
