@@ -75,10 +75,10 @@ git clone https://github.com/romner-set/realistic-fusion-dev.git && ln -rs reali
 #### To update, `cd` into the folder again and run `git pull`.
 
 ## Links to the mod portal
-- [TODO] [Realistic Fusion - Core](https://mods.factorio.com/mod/RealisticFusionCore)
-- [v1.x] [Realistic Fusion - Power](https://mods.factorio.com/mod/RealisticFusionPower)
-- [v1.x] [Realistic Fusion - Weaponry](https://mods.factorio.com/mod/RealisticFusionWeaponry)
-- [TODO] [Realistic Fusion - Antimatter](https://mods.factorio.com/mod/RealisticFusionAntimatter)
+- [TODO] [Realistic Fusion - Core](https://mods.factorio.com/mod/RealisticFusion2Core)
+- [TODO] [Realistic Fusion - Power](https://mods.factorio.com/mod/RealisticFusion2Power)
+- [TODO] [Realistic Fusion - Weaponry](https://mods.factorio.com/mod/RealisticFusion2Weaponry)
+- [TODO] [Realistic Fusion - Antimatter](https://mods.factorio.com/mod/RealisticFusion2Antimatter)
 
 ### Footnotes
 [^1]: **I**nertial **C**onfinement **F**usion. Instead of heating up the gases directly like MCF[^4], ICF heats up small pellets of fuel with lasers.  
