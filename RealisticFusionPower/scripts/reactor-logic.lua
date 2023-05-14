@@ -101,13 +101,13 @@ end
 -- #region MAIN FUNCTION --
 
 return function(network, current_tick) --runs on_tick, per network
-    if false then --TODO current_tick%20==0 then
+    --[[if false then --TODO current_tick%20==0 then
         local dd_count = 0
         for _,e in pairs(network.heaters) do
             dd_count = dd_count + e.get_fluid_count("rf-deuterium")
         end
         print_log("dd: "..dd_count)
-    end
+    end]]
 
     -- #region UPDATE PLASMA --
     network.plasma_volume = network.reactor_volume / (1+network.magnetic_field_strength/9)

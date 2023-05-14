@@ -164,6 +164,8 @@ local function window(player, size, caption, flow_direction, id, suffix, no_manu
         mouse_button_filter={"left"}
     }
 
+    local ret
+    if n ~= nil then ret = n.guis.gui_ids[player.index] end
     if scrollable then
         local ret_args = {type="scroll-pane", style="inner_frame_scroll_pane"}
         if flow_direction == "horizontal" then
@@ -173,12 +175,10 @@ local function window(player, size, caption, flow_direction, id, suffix, no_manu
             ret_args.vertical_scroll_policy   = "always"
             ret_args.horizontal_scroll_policy = "never"
         end
-        return window,window.add(ret_args),n.guis.gui_ids[player.index]
+        return window,window.add(ret_args),ret
     else
         local content = window.add{type="frame", name="content", direction="vertical", style="inside_shallow_frame_with_padding"}
               content.style.vertically_stretchable = "on"
-        local ret
-        if n ~= nil then ret = n.guis.gui_ids[player.index]  end
         return window,content.add{type="flow", direction=flow_direction or "horizontal"},ret
     end
 end
@@ -221,7 +221,7 @@ function rfpower.shortcut_gui(event)
         if tsh == 0 then
             size[2] = 100
         else
-            size[2] = 75+tsh*26
+            size[2] = 75+tsh*32
         end
         scrollable = false
     end
@@ -236,24 +236,31 @@ function rfpower.shortcut_gui(event)
         label.style.font_color = {1,1,1}
         label.style.left_padding = 65
     else for k,n in pairs(global.networks) do
+        local enabled = table_size(n.reactors) > 0;
+        local caption; local padding
+        if enabled then caption="Open"; padding=120 else caption="No reactors"; padding=90 end
+
         local line_flow = content_flow.add{type="flow", direction="horizontal"}
         line_flow.add{type="label", caption="Network"}
 
-        local klabel = line_flow.add{type="label", caption="#"..k}
+        local kcaption
+        if k < 10 then kcaption = "#0"..k else kcaption = "#"..k end
+        local klabel = line_flow.add{type="label", caption=kcaption}
               klabel.style.font = "default-small"
               klabel.style.font_color = {0.75,0.75,0.75}
               klabel.style.top_padding = 2
 
-        paddingh(line_flow, 140)
+        paddingh(line_flow, padding)
+
 
         local bt = line_flow.add{
             type="button",
             name="rf-network-open-button",
             --groupstyle = "frame_action_button",
-            caption="Open",
+            caption=caption, enabled=enabled,
             mouse_button_filter={"left"},
             tags={network_number=k}
-        }; bt.style.width = 60;
+        }; bt.style.width = 180-padding
     end end
 
     --paddingh(content_flow)
