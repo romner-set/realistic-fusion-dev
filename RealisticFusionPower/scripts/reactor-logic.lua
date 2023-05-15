@@ -211,10 +211,10 @@ return function(network, current_tick) --runs on_tick, per network
             network.helium_3_usage = (-(he3he3_reactions*2 + (dhe3_reactions + the3_reactions) - dd_he3_reactions)) / c.atoms_per_unit
             network.helium_4_usage = (tt_reactions + the3_reactions + he3he3_reactions + dt_reactions + dhe3_reactions) / c.atoms_per_unit
 
-            rfpower.update_gui_bar(network, "deuterium_usage", 1, "u", math.floor(network.deuterium_usage*1000000)/1000*60)
-            rfpower.update_gui_bar(network, "tritium_usage", 1, "u", math.floor(network.tritium_usage*1000)/1000*60)
-            rfpower.update_gui_bar(network, "helium_3_usage", 1, "u", math.floor(network.helium_3_usage*1000)/1000*60)
-            rfpower.update_gui_bar(network, "helium_4_usage", 1, "u", math.floor(network.helium_4_usage*1000)/1000*60)
+            rfpower.update_gui_bar(network, "deuterium_usage", 1, "mu", math.floor(network.deuterium_usage*1000000)/1000*60)
+            rfpower.update_gui_bar(network, "tritium_usage", 1, "mu", math.floor(network.tritium_usage*1000000)/1000*60)
+            rfpower.update_gui_bar(network, "helium_3_usage", 1, "mu", math.floor(network.helium_3_usage*1000000)/1000*60)
+            rfpower.update_gui_bar(network, "helium_4_usage", 1, "mu", math.floor(network.helium_4_usage*1000000)/1000*60)
 
 
             network.deuterium = network.deuterium + (network.deuterium_usage / c.atoms_per_unit)
@@ -308,7 +308,8 @@ return function(network, current_tick) --runs on_tick, per network
         --for _=1,10 do
             current_temp = current_temp + (
                 network.heater_power*10 -- *10 because otherwise it doesn't work... and we don't reaaaaaally need to be 100% realistic if it doesn't even work irl yet, right?
-              + fusion_energy * network.plasma_volume
+              + fusion_energy * network.plasma_volume * (1 + network.plasma_flow_speed/5 * math.random()) -- high plasma flow speed == more particle collisions == more reactivity, at the cost of stability
+              - network.plasma_flow_speed * math.random() * 4.1e5 / math.sqrt(network.reactor_volume) * math.sqrt(current_temp*1e6) 
               - 1.04e-19 * (c.atoms_per_unit*network.total_plasma*plasma_capacity / network.plasma_volume)^2 * math.sqrt(current_temp*1e6) * network.plasma_volume * c.joules_per_ev --bremsstrahlung radiation, according to IAEA's fusion book pg.17 (40 in the PDF)
             )/(heat_cap*60) --temp = energy/heat_capacity
             --log(network.heater_power.." "..fusion_energy * network.plasma_volume..(1.04e-19 * (c.atoms_per_unit*network.total_plasma*plasma_capacity / network.plasma_volume)^2 * math.sqrt(current_temp*1e6) * network.plasma_volume * c.joules_per_ev))
