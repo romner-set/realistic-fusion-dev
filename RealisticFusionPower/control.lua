@@ -84,7 +84,7 @@ require("scripts.entity-management")                        -- manages reactor/h
 require("scripts.gui-events")                               -- handles GUI sliders, switches, buttons etc.
 -- #endregion --
 
--- #region REGISTER EVENT HANDLERS --
+-- #region EVENT HANDLERS --
 -- make sure you don't handle an event twice, look in ./scripts/ for an EVENT HANDLERS #region
 script.on_event(defines.events.on_tick, function(event)
     try_catch(function()

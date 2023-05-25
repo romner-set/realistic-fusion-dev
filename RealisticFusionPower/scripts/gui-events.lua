@@ -1,5 +1,5 @@
 function rfpower.update_heater_power(network)
-    network.heater_power = 0
+  network.heater_power = 0
     for un,heater in pairs(network.heaters) do
         network.heater_power = network.heater_power + (network.heater_override_slider[un] or network.plasma_heating)
     end
@@ -8,9 +8,14 @@ end
 
 function rfpower.update_gui(event, value)
     local name = event.element.name:sub(4)
-    --game.print(name.." "..name:sub(1,30).." "..name:sub(32))
+    --game.print(name.." "..name:sub(1,15).." "..name:sub(32))
+    --game.print(serpent.block(event.element.tags))
     local un = event.element.tags.unit_number
-    local n = global.networks[global.entities[un]]
+    local n; if event.element.tags.network_number ~= nil then
+        n = global.networks[event.element.tags.network_number]
+    else
+        n = global.networks[global.entities[un]]
+    end
 
     -- #region GIGANTIC UGLY IF-BLOCKS FOR UPDATING STUFF AFTER FLIPPING SWITCHES WHICH I CAN'T BE BOTHERED TO REPLACE
     --TODO? hopefully? I'm sincerely sorry to anyone who might have to maintain this in the future (aka myself) if I don't replace it
@@ -177,7 +182,8 @@ function rfpower.update_gui(event, value)
         end
     end
 
-    if name == "heater-override" then
+    local _name = name:sub(1,22)
+    if _name == "heater-override" then
         if n.systems == "right" and n.heating == "right" then
             if n.heater_override[un] == "left" then
                 n.heater_override[un] = "right"
@@ -209,7 +215,7 @@ function rfpower.update_gui(event, value)
                 end
             end
         end
-    elseif name == "heater-override-slider" then
+    elseif _name == "heater-override-slider" then
         n.heater_override_slider[un] = event.element[value]
     else n[name:gsub("-", "_")] = event.element[value] end
     -- #endregion --
@@ -217,7 +223,7 @@ function rfpower.update_gui(event, value)
     -- #region UPDATE ELEMENT --
     for idx, v in pairs(n.guis.sliders) do
         for _, _v in pairs(v) do
-            if _v[name] then
+            if _v[name] and _v[name].valid then
                 _v[name][value] = event.element[value]
                 if value == "slider_value" then _v[name].parent[event.element.name.."-value-frame"][event.element.name.."-value"].caption = (event.element.slider_value.."%"):sub(1,3) end
             end
@@ -250,15 +256,25 @@ end
 script.on_event(defines.events.on_gui_click, function(event)
     try_catch(function()
         if event.element.name:sub(1,3) == "rf-" and event.element then
-            local n = global.networks[global.entities[event.element.tags.unit_number]]
+            local nid = event.element.tags.network_number
+            local n; if nid ~= nil then
+                n = global.networks[nid]
+            else
+                n = global.networks[global.entities[event.element.tags.unit_number]]
+            end
+
             if event.element.name == "rf-plasma-heating-button" then
-                rfpower.heater_list_gui(n, event.player_index, event.element.tags.unit_number) --defined in ./gui.lua
+                rfpower.heater_list_gui(n, event.player_index, nid) --defined in ./gui.lua
             elseif event.element.name == "rf-close-button" then
                 local gui_id = event.element.parent.parent.tags.gui_id
-                for _,v in pairs{"sliders", "bars", "switches", "choice_elems", "sprites", "sprite_idxs", "checkboxes"} do
-                    n.guis[v][event.player_index][gui_id] = nil
+                if n then
+                    for _,v in pairs{"sliders", "bars", "switches", "choice_elems", "sprites", "sprite_idxs", "checkboxes"} do
+                        n.guis[v][event.player_index][gui_id] = nil
+                    end
                 end
                 event.element.parent.parent.destroy() --DESTROY sounds a bit aggressive for just closing a GUI...
+            elseif event.element.name == "rf-network-open-button" then
+                rfpower.reactor_gui(event.player_index, nid)
             end
         end
     end)
@@ -267,7 +283,11 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
     try_catch(function()
         if event.element.name:sub(1,3) == "rf-" and event.element then
             local un = event.element.tags.unit_number
-            local n = global.networks[global.entities[un]]
+            local n; if event.element.tags.network_number ~= nil then
+                n = global.networks[event.element.tags.network_number]
+            else
+                n = global.networks[global.entities[un]]
+            end
 
             if n.systems == "right" and n.heating == "right" then
                 if event.element.state == true then
@@ -276,11 +296,12 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
                     n.heater_override[un] = "left"
                     n.heater_override_slider[un] = n.plasma_heating
                 end
-                
+
+                local slider_name = "rf-heater-override-slider-"..un
                 for _,sliders in pairs(n.guis.sliders) do
                     for _,_sliders in pairs(sliders) do
                         for _name,slider in pairs(_sliders) do
-                            if slider.name == "rf-heater-override-slider" then
+                            if _name == "heater-override-slider-"..un then
                                 slider.enabled = event.element.state
                                 if not event.element.state then slider.slider_value = n.plasma_heating end
                                 slider.parent["rf-".._name.."-value-frame"]["rf-".._name.."-value"].caption = string.sub(slider.slider_value.."%", 1,3)
@@ -289,11 +310,12 @@ script.on_event(defines.events.on_gui_checked_state_changed, function(event)
                     end
                 end
 
+                local name = "rf-heater-override"..un
                 for k,v in pairs{switches = {"switch_state", n.heater_override[un]}, checkboxes = {"state", n.heater_override[un] == "right"}} do
                     for _,stuff in pairs(n.guis[k]) do
                         for _,_stuff in pairs(stuff) do
-                            for _,thing in pairs(_stuff) do
-                                if thing.name == "rf-heater-override" then thing[v[1]] = v[2] end
+                            for _name,thing in pairs(_stuff) do
+                                if _name == name then thing[v[1]] = v[2] end
                             end
                         end
                     end
@@ -321,7 +343,13 @@ script.on_event(defines.events.on_gui_elem_changed, function(event) --TODO test 
     try_catch(function()
         if event.element.name:sub(1,3) == "rf-" then
             local v = nil
-            local n = global.networks[global.entities[event.element.tags.unit_number]]
+
+            local n; if event.element.tags.network_number ~= nil then
+                n = global.networks[event.element.tags.network_number]
+            else
+                n = global.networks[global.entities[event.element.tags.unit_number]]
+            end
+
             if event.element.elem_value then v = event.element.elem_value:sub(11, 13):upper() end
             n[event.element.name] = v
 

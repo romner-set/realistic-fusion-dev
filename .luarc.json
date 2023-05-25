@@ -1,0 +1,25 @@
+{
+    "diagnostics.disable": [
+        "lowercase-global",
+        "unused-local",
+        "unused-function",
+        "empty-block"
+    ],
+    "diagnostics.globals": [
+        "defines",
+        "settings",
+        "game",
+        "log",
+        "script",
+        "remote",
+        "data",
+        "mods",
+        "util",
+        "pipecoverspictures",
+        "global",
+        "circuit_connector_definitions",
+        "default_circuit_wire_max_distance",
+        "table_size",
+        "serpent"
+    ],
+}

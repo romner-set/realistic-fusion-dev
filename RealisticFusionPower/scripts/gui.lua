@@ -22,8 +22,16 @@ local function line(element, direction)
     element.add{type="line", style="inside_shallow_frame_with_padding_line", direction=direction}
 end
 
-local function slider_progressbar(args)--{unit_number, element, name, key, suffix, padleft, padcenter, padright, type, max_value, style, top_margin, slider_size, value_size, value, button, enabled}
-    local n = global.networks[global.entities[args.unit_number]]
+local function slider_progressbar(args)--{id, element, name, key, suffix, padleft, padcenter, padright, type, max_value, style, top_margin, slider_size, value_size, value, button, enabled, id_is_network_number}
+    local tags, n
+    if args.id_is_network_number then
+        n = global.networks[args.id]
+        tags = {network_number = args.id}
+    else
+        n = global.networks[global.entities[args.id]]
+        tags = {unit_number = args.id}
+    end
+
     args.style = args.style or "rf_reactor_control_notched_slider"--"map_generator_notched_slider_wide"
     args.slider_size = args.slider_size or 120
     args.value_size = args.value_size or 30
@@ -39,7 +47,7 @@ local function slider_progressbar(args)--{unit_number, element, name, key, suffi
             --groupstyle = "frame_action_button",
             caption=args.key,
             mouse_button_filter={"left"},
-            tags={unit_number=args.unit_number}
+            tags=tags
         }--; bt.style.width = 70; bt.style.font_color = {1,1,1}
         --bt.enabled = args.enabled
     else
@@ -51,7 +59,9 @@ local function slider_progressbar(args)--{unit_number, element, name, key, suffi
         else paddingh(args.element, args.padleft) end
     end
 
-    local slider = args.element.add{type=args.type, name="rf-"..args.name, style=args.style, value=args.value, tags={unit_number=args.unit_number, suffix=args.suffix}, maximum_value=args.max_value}
+    tags.suffix=args.suffix
+
+    local slider = args.element.add{type=args.type, name="rf-"..args.name, style=args.style, value=args.value, tags=tags, maximum_value=args.max_value}
         slider.style.width = args.slider_size
         slider.style.top_margin = args.top_margin
     if args.type ~= "slider" then
@@ -78,7 +88,7 @@ local function slider_progressbar(args)--{unit_number, element, name, key, suffi
                 args.value = "OFF"
             end
         end
-        local value = value_frame.add{type="label", name="rf-"..args.name.."-value", caption=(args.value..args.suffix):sub(1,3), tags={unit_number=args.unit_number, suffix=args.suffix}}
+        local value = value_frame.add{type="label", name="rf-"..args.name.."-value", caption=(args.value..args.suffix):sub(1,3), tags=tags}
             value.style.width = args.value_size
             value.style.horizontal_align = "center"
     end
@@ -91,18 +101,29 @@ local function slider_progressbar(args)--{unit_number, element, name, key, suffi
     return slider
 end
 
-local function window(player, size, caption, flow_direction, un, suffix, no_manual, scrollable, no_un_in_title)
-    local n = global.networks[global.entities[un]]
+local function window(player, size, caption, flow_direction, id, suffix, no_manual, scrollable, no_id_in_title, id_is_network_number)
+    local tags,n
 
-    n.guis.gui_ids[player.index] = (n.guis.gui_ids[player.index] or 0) + 1
-    for _,v in pairs{"sliders", "bars", "switches", "choice_elems", "sprites", "checkboxes"} do
-        n.guis[v][player.index] = n.guis[v][player.index] or {}
-        n.guis[v][player.index][n.guis.gui_ids[player.index]] = {}
+    if id ~= nil then
+        if id_is_network_number then
+            n = global.networks[id]
+            tags = {network_number = id}
+        else
+            n = global.networks[global.entities[id]]
+            tags = {unit_number = id}
+        end
+
+        n.guis.gui_ids[player.index] = (n.guis.gui_ids[player.index] or 0) + 1
+        for _,v in pairs{"sliders", "bars", "switches", "choice_elems", "sprites", "checkboxes"} do
+            n.guis[v][player.index] = n.guis[v][player.index] or {}
+            n.guis[v][player.index][n.guis.gui_ids[player.index]] = {}
+        end
+        n.guis.sprite_idxs[player.index] = n.guis.sprite_idxs[player.index] or {}
+        n.guis.sprite_idxs[player.index][n.guis.gui_ids[player.index]] = 1
+        tags.gui_id=n.guis.gui_ids[player.index]
     end
-    n.guis.sprite_idxs[player.index] = n.guis.sprite_idxs[player.index] or {}
-    n.guis.sprite_idxs[player.index][n.guis.gui_ids[player.index]] = 1
 
-    local window = player.gui.screen.add{type="frame", name=rfpower.gui_window_name..(suffix or ""), direction="vertical", tags={unit_number=un, gui_id=n.guis.gui_ids[player.index]}}
+    local window = player.gui.screen.add{type="frame", name=rfpower.gui_window_name..(suffix or ""), direction="vertical", tags=tags}
           window.style.size = size
           window.auto_center = true
     --network[event.player_index].window = window
@@ -111,8 +132,8 @@ local function window(player, size, caption, flow_direction, un, suffix, no_manu
           titlebar.drag_target = window
           titlebar.add{type="label", name="title", style="frame_title", ignored_by_interaction=true, caption=caption}
 
-    if not no_un_in_title then
-        titlebar.add{type="label", name="title-un", ignored_by_interaction=true, caption="#"..un}
+    if not no_id_in_title and id ~= nil then
+        titlebar.add{type="label", name="title-un", ignored_by_interaction=true, caption="#"..id}
     end
 
     local drag_handle = titlebar.add{type="empty-widget", name="rf-drag-handle", style="draggable_space_header", ignored_by_interaction=true}
@@ -127,7 +148,7 @@ local function window(player, size, caption, flow_direction, un, suffix, no_manu
             style = "frame_action_button",
             caption="Manual",
             mouse_button_filter={"left"},
-            tags={unit_number=un}
+            tags=tags
         }; manual.style.width = 70; manual.style.font_color = {1,1,1}
     end
 
@@ -139,7 +160,7 @@ local function window(player, size, caption, flow_direction, un, suffix, no_manu
         hovered_sprite = "utility/close_black",
         clicked_sprite = "utility/close_black",
         tooltip = "Close window",
-        tags={unit_number=un},
+        tags=tags,
         mouse_button_filter={"left"}
     }
 
@@ -156,304 +177,389 @@ local function window(player, size, caption, flow_direction, un, suffix, no_manu
     else
         local content = window.add{type="frame", name="content", direction="vertical", style="inside_shallow_frame_with_padding"}
               content.style.vertically_stretchable = "on"
-        return window,content.add{type="flow", direction=flow_direction or "horizontal"},n.guis.gui_ids[player.index]
+        local ret
+        if n ~= nil then ret = n.guis.gui_ids[player.index]  end
+        return window,content.add{type="flow", direction=flow_direction or "horizontal"},ret
     end
 end
 -- #endregion --
 
 -- #region MAIN FUNCTIONS --
 
--- GENERAL GUI
+-- EVENT HANDLERS
+-- General GUI
 script.on_event(defines.events.on_gui_opened, function(event)
     try_catch(function()
         if event.gui_type == defines.gui_type.entity then
             if event.entity.name == "rf-m-reactor" then
----------------- #region REACTOR GUI ----------------
-                local player = game.get_player(event.player_index)
-                local un = event.entity.unit_number
-                if player.gui.screen[rfpower.gui_window_name.."-reactor-"..un] then player.opened = nil else
-                    local network = global.networks[global.entities[un]]
-
-                    -- #region WINDOW --
-                    local w,content_flow,gui_id = window(player, {1080, 470}, "Fusion reactor control", nil, un, "-reactor-"..un);
-
-                    local content_sections = {}
-                    for i,k in ipairs{"left", "center", "right"} do
-                        local style = "invisible_frame"
-                        if i == 2 then style = "deep_frame_in_shallow_frame" end
-                        local w = 300
-                        if i==2 then w = 420 end
-                        content_sections[k] = content_flow.add{type="frame", name=k, style=style, direction="vertical"}
-                            content_sections[k].style.width = w
-                            content_sections[k].style.vertically_stretchable = true
-                    end
-                    -- #endregion --
-
-                    -- #region LEFT SIDE --
-                    local content_left_main_vars = content_sections.left.add{type="table", name="table-main-vars", column_count=4};
-                        content_left_main_vars.style.top_cell_padding = 3
-                        content_left_main_vars.style.bottom_cell_padding = 3
-                    network.guis.sliders[event.player_index][gui_id]["plasma-heating"] = slider_progressbar{
-                        unit_number=un, element=content_left_main_vars, name="plasma-heating", key="Plasma heating", suffix="%", padleft=10, button = true
-                    }
-                    padding(content_sections.left, 10)
-                    line(content_sections.left)
-                    padding(content_sections.left, 10)
-
-                    local content_left_vars = content_sections.left.add{type="table", name="table-vars", column_count=3}
-                        content_left_vars.style.top_cell_padding = 3
-                        content_left_vars.style.bottom_cell_padding = 3
-
-                    for _,k in pairs{--[["Plasma heating",]] "Magnetic field strength", "Plasma flow speed"} do
-                        local name = k:lower():gsub(" ", "-")
-                        network.guis.sliders[event.player_index][gui_id][name] = slider_progressbar{unit_number=un, element=content_left_vars, name=name, key=k, suffix="%"}
-                    end
-
-                    for i,v in ipairs{
-                        {["Energy input"] = {"MW", 1000}, ["Energy output"] = {"MW", 1000}},
-                        {["Total plasma"] = {"u", 100--[[TODO]]}, ["Plasma volume"] = {"m³", 100--[[TODO]]}, ["Plasma temperature"] = {" M°C", 200}},
-                        --{"Reactor wall integrity"},
-                        --{"Tritium breeding rate"},
-                    } do
-                        local w = 100; if i == 1 then w = 140 end
-                        local s = "statistics_progressbar";
-                        --if i == 3 then s = "electric_satisfaction_progressbar" end
-                        --elseif i == 2 then s = "heat_progressbar" end
-
-                        padding(content_sections.left, 10)
-                        line(content_sections.left)
-                        padding(content_sections.left, 10)
-                        local table = content_sections.left.add{type="table", name="table-stats-"..i, column_count=5}
-                            table.style.top_cell_padding = 3
-                            table.style.bottom_cell_padding = 3
-                        for k,_v in pairs(v) do
-                            if k:sub(1,6) == "Energy" then s = "electric_statistics_progressbar" end
-                            local name = k:lower():gsub(" ", "-")
-                            network.guis.bars[event.player_index][gui_id][name] = slider_progressbar{
-                                unit_number=un, element=table, name=name, key=k,
-                                suffix=_v[0], padleft=-1, padright=0, type="progressbar",
-                                max_value=_v[1], style=s, slider_size=w, value_size=58
-                            }
-                        end
-                    end
-
-                    padding(content_sections.left, 10)
-                    line(content_sections.left)
-                    padding(content_sections.left, 10)
-                    -- #endregion --
-
-                    -- #region RIGHT SIDE --
-                    content_sections.right.style.left_padding = 10
-
-                    local content_right_switches = content_sections.right.add{type="table", name="table-switches", column_count=3}
-                        content_right_switches.style.left_cell_padding = 6
-                        content_right_switches.style.right_cell_padding = 6
-                        --content_right_secondary_switches.style.left_padding = 20
-                    local switches = {"     Systems", "Magnetic field", "       Heating"}
-                    for _,k in ipairs(switches) do content_right_switches.add{type="label", caption=k} end
-                    for _,k in ipairs(switches) do
-                        local name = k:gsub("%s%s+", ""):lower():gsub(" ", "-")
-                        network.guis.switches[event.player_index][gui_id][name] = content_right_switches.add{type="switch", name="rf-"..name,
-                            style = "rf_reactor_control_switch", left_label_caption="OFF", right_label_caption="ON", tags={unit_number=un}, switch_state=network[name:gsub("-", "_")]
-                        }
-                    end
-
-                    padding(content_sections.right, 5)
-                    line(content_sections.right)
-
-                    local function gas_section(prefix, pad_progressbar, pad, pad_slider)
-                        local vars = {}
-                        if pad == nil then
-                            pad = {}
-                            for i=1, #prefix do pad[i]=0 end
-                        end
-                        if pad[1] ~= -1 then if pad[1] == 0 then vars[1] = prefix.." input" else vars[1] = (" "):rep(pad[1]) end end
-                        if pad[2] ~= -1 then if pad[2] == 0 then vars[2] = prefix.." removal" else vars[2] = "" end end
-
-                        if table_size(vars) > 1 then
-                            padding(content_sections.right, 5)
-
-                            local content_right_var_labels = content_sections.right.add{type="flow", name="table-"..prefix:lower().."-var-labels"}
-                                content_right_var_labels.style.horizontal_spacing = 45
-                                content_right_var_labels.style.left_padding = 32
-                            for _,k in ipairs(vars) do content_right_var_labels.add{type="label", caption=k} end
-
-                            padding(content_sections.right, 5)
-                        end
-
-                        local content_right_vars = content_sections.right.add{type="flow", name=prefix:lower().."-vars"}
-                        for i,k in ipairs(vars) do
-                            paddingh(content_right_vars, 5 - (i%2)*5)
-                            if pad[i] == 0 then
-                                local name = k:lower():gsub(" ", "-")
-                                local v = network[name:gsub("-", "_")]
-                                local slider = content_right_vars.add{type="slider", name="rf-"..name, style="rf_reactor_control_notched_slider",
-                                    value=v, maximum_value=100, value_step=10, tags={unit_number=un}
-                                }; slider.style.width = 103
-                                if network.systems == "left" then slider.enabled = false; v = "OFF" end
-                                local value_frame = content_right_vars.add{type="frame", name="rf-"..name.."-value-frame", style="slot_button_deep_frame"}
-                                local value = value_frame.add{type="label", name="rf-"..name.."-value", caption=((v or "OFF").."%"):sub(1,3)}
-                                    value.style.width = 30
-                                    value.style.horizontal_align = "center"
-                                network.guis.sliders[event.player_index][gui_id][name] = slider
-                            else
-                                paddingh(content_right_vars, 0)
-                                paddingh(content_right_vars, pad_slider)
-                            end
-                        end
-
-                        padding(content_sections.right, 5)
-
-                        local content_right_stats = content_sections.right.add{type="table", name="table-"..prefix:lower().."-stats", column_count=4}
-                            content_right_stats.style.top_cell_padding = 3
-                            content_right_stats.style.bottom_cell_padding = 3
-                        network.guis.bars[event.player_index][gui_id][prefix:lower()] = slider_progressbar{
-                            unit_number=un, element=content_right_stats,
-                            name=prefix:lower(), key=prefix.." in plasma", suffix="%",
-                            padleft=pad_progressbar, type="progressbar",
-                            style="statistics_progressbar", slider_size=99,
-                            value_size=60
-                        }
-
-                        padding(content_sections.right, 5)
-                        line(content_sections.right)
-                    end
-
-                    gas_section("Deuterium", 0)
-                    --gas_section("Deuterium", 0, {0,30}, 133)
-                    gas_section("Tritium", 20)
-                    gas_section("Helium-3", 7)
-                    --gas_section("Helium-3", 7, {30,0}, 133)
-                    gas_section("Helium-4", 7)
-
-                    --[[network.guis.bars[event.player_index][gui_id]["lithium-stored"] = slider_progressbar(un, content_sections.right.add{type="flow", name="table-stats-right-lithium"},
-                        "lithium-stored", "Lithium stored in reactor", "u",
-                        1, nil, nil, "progressbar", nil,
-                        "statistics_progressbar", 5, 78, 58
-                    )
-
-                    padding(content_sections.right)
-                    line(content_sections.right)
-
-                    local type_label_flow = content_sections.right.add{type="flow"}
-                    local type_flow = content_sections.right.add{type="flow"}
-                    
-                    paddingh(type_label_flow)
-                    local label = type_label_flow.add{type="label", caption="Fusion type"}; label.style.font = "default-large"
-                    paddingh(type_label_flow)
-                    local label = type_label_flow.add{type="label", caption="Controller type"}; label.style.font = "default-large"
-                    paddingh(type_label_flow)
-
-                    paddingh(type_flow, 32)
-                    local recipe = type_flow.add{type="choose-elem-button", name="reactor-recipe", elem_type="recipe", tags={unit_number=un}, elem_filters={
-                        {filter = "has-ingredient-fluid", elem_filters = {
-                            {filter = "name", name = "rf-deuterium-plasma"},
-                            {filter = "name", name = "rf-d-t-plasma"},
-                        }}
-                    }}
-                    recipe.style.size = 64
-
-                    paddingh(type_flow, 64)
-                    local controller = type_flow.add{type="choose-elem-button", name="controller-tech", elem_type="recipe", tags={unit_number=un}, elem_filters={
-                        {filter = "has-ingredient-fluid", elem_filters = {
-                            {filter = "name", name = "rf-deuterium-plasma"},
-                            {filter = "name", name = "rf-d-t-plasma"},
-                        }}
-                    }}
-                    controller.style.size = 64
-
-                    network.guis.choice_elems[event.player_index][gui_id]["reactor-recipe"] = recipe
-                    network.guis.choice_elems[event.player_index][gui_id]["controller-tech"] = controller]]
-                    -- #endregion --
-
-                    -- #region CENTER --
-                    local wall_integrity = content_sections.center.add{type="flow", name="table-stats-right-wall-integrity"}
-                    paddingh(wall_integrity)
-                    --network.guis.bars[event.player_index][gui_id]["wall-integrity"] = slider_progressbar(un, wall_integrity,
-                    --    "wall-integrity", "Wall integrity", nil, nil, nil, "progressbar",
-                    --    "electric_satisfaction_progressbar",5, 82, 0
-                    --)
-                    local slider = wall_integrity.add{type="progressbar", name="rf-wall-integrity", style="electric_satisfaction_progressbar",
-                        value=network.wall_integrity,tags={unit_number=un}, maximum_value=100, caption="INTERNAL REACTOR WALL INTEGRITY"
-                    };
-                        slider.style.width = 400;
-                        slider.style.height = 18
-                        --slider.style.top_margin = 5
-                        slider.style.bar_width = 18
-                        slider.style.horizontal_align = "center"
-                        slider.style.font = "default-small-semibold"
-                    network.guis.bars[event.player_index][gui_id]["wall-integrity"] = slider
-                    paddingh(wall_integrity)
-
-                    network.guis.sprites[event.player_index][gui_id] = content_sections.center.add{
-                        type="sprite",
-                        name="rf-m-reactor-sprite",
-                        resize_to_sprite=false,
-                        tags={unit_number=un},
-                        --sprite = "rf-gui-plasma-sprite-1"
-                    };
-                    network.guis.sprites[event.player_index][gui_id].style.left_padding = 10
-                    network.guis.sprites[event.player_index][gui_id].style.width = 400
-                    network.guis.sprites[event.player_index][gui_id].style.height = 343
-                    -- #endregion --
-
-                    player.opened = w
-                end
----------------- #endregion ----------------
+                rfpower.reactor_gui(event.player_index, global.entities[event.entity.unit_number])
             elseif event.entity.name == "rf-m-heater" then
----------------- #region HEATER GUI ----------------
-                local player = game.get_player(event.player_index)
-                local un = event.entity.unit_number
-                if player.gui.screen[rfpower.gui_window_name.."-heater-"..un] then player.opened = nil else
-                    local network = global.networks[global.entities[un]]
-
-                    -- WINDOW --
-                    local w,content_flow,gui_id = window(player, {350, 180}, "Plasma heater control", "vertical", un, "-heater-"..un);
-
-                    -- #region OVERRIDE SWITCH --
-                    local switch_flow = content_flow.add{type="flow", name="rf-heater-override-flow", direction="horizontal"}
-                    switch_flow.add{type="label", name="rf-heater-override-label", caption="Override reactor controls?"}
-                    paddingh(switch_flow)
-
-                    local enabled = (network.systems == "right" and network.heating == "right")
-                    local state = "left"
-                    if enabled and network.heater_override[un] == "right" then state="right" end
-
-                    network.heater_override[event.entity.unit_number] = network.heater_override[event.entity.unit_number] or 0
-                    network.guis.switches[event.player_index][gui_id]["heater-override"] = switch_flow.add{type="switch", name="rf-heater-override",
-                        style = "rf_reactor_control_switch", left_label_caption="OFF", right_label_caption="ON",
-                        tags={unit_number=un}, switch_state=state, enabled=enabled
-                    }
-                    -- #endregion --
-
-                    padding(content_flow)
-                    
-                    -- #region OVERRIDE SLIDER --
-                    local slider_flow = content_flow.add{type="flow", name="rf-heater-override-slider-flow", direction="horizontal"}
-
-                    network.heater_override_slider[un] = network.heater_override_slider[un] or 0
-                    network.guis.sliders[event.player_index][gui_id]["heater-override-slider"] = slider_progressbar{
-                        unit_number=un, element=slider_flow, name="heater-override-slider", key="Plasma heating", suffix="%",
-                        padleft=-1, value=network.heater_override_slider[un], enabled=(state == "right")
-                    }
-                    -- #endregion --
-
-                    player.opened = w
-                end
----------------- #endregion ----------------
+                rfpower.heater_gui(event.player_index, event.entity.unit_number)
             end
         end
     end)
 end)
+-- Control shortcut
+script.on_event(defines.events.on_lua_shortcut, function(event) --TODO test in MP
+    if event.prototype_name == "rf-reactor-control" then
+        try_catch(function()
+            rfpower.shortcut_gui(event)
+        end)
+    end
+end)
+
+---------------- #region SHORTCUT GUI ----------------
+function rfpower.shortcut_gui(event)
+    for _,v in pairs(game.players[event.player_index].gui.screen.children_names) do
+        if v == rfpower.gui_window_name.."-shortcut-gui" then return end
+    end
+
+    local size = {330, 440}
+    local scrollable = true
+    local tsh = global.networks_len
+    if tsh<15 then
+        if tsh == 0 then
+            size[2] = 100
+        else
+            size[2] = 75+tsh*26
+        end
+        scrollable = false
+    end
+
+    local w,content_flow,gui_id = window(
+        game.get_player(event.player_index), size, "Network overview", "vertical",
+        nil, "-network-list", true, scrollable, nil, true);
+
+    if tsh == 0 then
+        local label = content_flow.add{type="label", caption="No RF networks found"}
+        label.style.font = "default-large-semibold"
+        label.style.font_color = {1,1,1}
+        label.style.left_padding = 65
+    else for k,n in pairs(global.networks) do
+        local line_flow = content_flow.add{type="flow", direction="horizontal"}
+        line_flow.add{type="label", caption="Network"}
+
+        local klabel = line_flow.add{type="label", caption="#"..k}
+              klabel.style.font = "default-small"
+              klabel.style.font_color = {0.75,0.75,0.75}
+              klabel.style.top_padding = 2
+
+        paddingh(line_flow, 140)
+
+        local bt = line_flow.add{
+            type="button",
+            name="rf-network-open-button",
+            --groupstyle = "frame_action_button",
+            caption="Open",
+            mouse_button_filter={"left"},
+            tags={network_number=k}
+        }; bt.style.width = 60;
+    end end
+
+    --paddingh(content_flow)
+end
+---------------- #endregion ----------------
+
+---------------- #region REACTOR GUI ----------------
+function rfpower.reactor_gui(player_index, network_number)
+    local player = game.get_player(player_index)
+    if player.gui.screen[rfpower.gui_window_name.."-reactor-"..network_number] then player.opened = nil else
+        local network = global.networks[network_number]
+
+        -- #region WINDOW --
+        local w,content_flow,gui_id = window(player, {1080, 490}, "Fusion reactor control", nil, network_number, "-reactor-"..network_number, nil,nil,nil, true);
+
+        local content_sections = {}
+        for i,k in ipairs{"left", "center", "right"} do
+            local style = "invisible_frame"
+            if i == 2 then style = "deep_frame_in_shallow_frame" end
+            local w = 300
+            if i==2 then w = 420 end
+            content_sections[k] = content_flow.add{type="frame", name=k, style=style, direction="vertical"}
+                content_sections[k].style.width = w
+                content_sections[k].style.vertically_stretchable = true
+        end
+        -- #endregion --
+
+        -- #region LEFT SIDE --
+        local content_left_main_vars = content_sections.left.add{type="table", name="table-main-vars", column_count=4};
+            content_left_main_vars.style.top_cell_padding = 3
+            content_left_main_vars.style.bottom_cell_padding = 3
+        network.guis.sliders[player_index][gui_id]["plasma-heating"] = slider_progressbar{
+            id=network_number, element=content_left_main_vars, name="plasma-heating", key="Plasma heating", suffix="%", padleft=10, button=true, id_is_network_number=true
+        }
+        padding(content_sections.left, 10)
+        line(content_sections.left)
+        padding(content_sections.left, 10)
+
+        local content_left_vars = content_sections.left.add{type="table", name="table-vars", column_count=3}
+            content_left_vars.style.top_cell_padding = 3
+            content_left_vars.style.bottom_cell_padding = 3
+
+        for _,k in pairs{--[["Plasma heating",]] "Magnetic field strength", "Plasma flow speed"} do
+            local name = k:lower():gsub(" ", "-")
+            network.guis.sliders[player_index][gui_id][name] = slider_progressbar{id=network_number, element=content_left_vars, name=name, key=k, suffix="%", id_is_network_number=true}
+        end
+
+        for i,v in ipairs{
+            {["Energy input"] = {"MW", 1000}, ["Energy output"] = {"MW", 1000}},
+            {["Total plasma"] = {"u", 100--[[TODO]]}, ["Plasma volume"] = {"m³", 100--[[TODO]]}, ["Plasma temperature"] = {" M°C", 200}},
+            --{"Reactor wall integrity"},
+            --{"Tritium breeding rate"},
+        } do
+            local w = 100; if i == 1 then w = 140 end
+            local s = "statistics_progressbar";
+            --if i == 3 then s = "electric_satisfaction_progressbar" end
+            --elseif i == 2 then s = "heat_progressbar" end
+
+            padding(content_sections.left, 10)
+            line(content_sections.left)
+            padding(content_sections.left, 10)
+            local table = content_sections.left.add{type="table", name="table-stats-"..i, column_count=5}
+                table.style.top_cell_padding = 3
+                table.style.bottom_cell_padding = 3
+            for k,_v in pairs(v) do
+                if k:sub(1,6) == "Energy" then s = "electric_statistics_progressbar" end
+                local name = k:lower():gsub(" ", "-")
+                network.guis.bars[player_index][gui_id][name] = slider_progressbar{
+                    id=network_number, element=table, name=name, key=k,
+                    suffix=_v[0], padleft=-1, padright=0, type="progressbar",
+                    max_value=_v[1], style=s, slider_size=w, value_size=58,
+                    id_is_network_number=true
+                }
+            end
+        end
+
+        padding(content_sections.left, 10)
+        line(content_sections.left)
+        padding(content_sections.left, 10)
+
+        local content_left_usage = content_sections.left.add{type="table", name="table-usage", column_count=5};
+            content_left_usage.style.top_cell_padding = 3
+            content_left_usage.style.bottom_cell_padding = 3
+
+        for i,v in ipairs{"Deuterium", "Tritium", "Helium-3"} do
+            network.guis.bars[player_index][gui_id][v:lower().."-usage"] = slider_progressbar{
+                id=network_number, element=content_left_usage, name=v:lower().."-usage", key=v.." usage/s",
+                suffix="u", padleft=-1, padright=0, type="progressbar", value=network[v:lower().."_usage"],
+                max_value=1, style="statistics_progressbar", slider_size=100, value_size=58,
+                id_is_network_number=true
+            }
+        end
+        -- #endregion --
+
+        -- #region RIGHT SIDE --
+        content_sections.right.style.left_padding = 10
+
+        local content_right_switches = content_sections.right.add{type="table", name="table-switches", column_count=3}
+            content_right_switches.style.left_cell_padding = 6
+            content_right_switches.style.right_cell_padding = 6
+            --content_right_secondary_switches.style.left_padding = 20
+        local switches = {"     Systems", "Magnetic field", "       Heating"}
+        for _,k in ipairs(switches) do content_right_switches.add{type="label", caption=k} end
+        for _,k in ipairs(switches) do
+            local name = k:gsub("%s%s+", ""):lower():gsub(" ", "-")
+            network.guis.switches[player_index][gui_id][name] = content_right_switches.add{type="switch", name="rf-"..name,
+                style = "rf_reactor_control_switch", left_label_caption="OFF", right_label_caption="ON", tags={network_number=network_number}, switch_state=network[name:gsub("-", "_")]
+            }
+        end
+
+        padding(content_sections.right, 5)
+        line(content_sections.right)
+
+        local function gas_section(prefix, pad_progressbar, pad, pad_slider)
+            local vars = {}
+            if pad == nil then
+                pad = {}
+                for i=1, #prefix do pad[i]=0 end
+            end
+            if pad[1] ~= -1 then if pad[1] == 0 then vars[1] = prefix.." input" else vars[1] = (" "):rep(pad[1]) end end
+            if pad[2] ~= -1 then if pad[2] == 0 then vars[2] = prefix.." removal" else vars[2] = "" end end
+
+            if table_size(vars) > 1 then
+                padding(content_sections.right, 5)
+
+                local content_right_var_labels = content_sections.right.add{type="flow", name="table-"..prefix:lower().."-var-labels"}
+                    content_right_var_labels.style.horizontal_spacing = 45
+                    content_right_var_labels.style.left_padding = 32
+                for _,k in ipairs(vars) do content_right_var_labels.add{type="label", caption=k} end
+
+                padding(content_sections.right, 5)
+            end
+
+            local content_right_vars = content_sections.right.add{type="flow", name=prefix:lower().."-vars"}
+            for i,k in ipairs(vars) do
+                paddingh(content_right_vars, 5 - (i%2)*5)
+                if pad[i] == 0 then
+                    local name = k:lower():gsub(" ", "-")
+                    local v = network[name:gsub("-", "_")]
+                    local slider = content_right_vars.add{type="slider", name="rf-"..name, style="rf_reactor_control_notched_slider",
+                        value=v, maximum_value=100, value_step=10, tags={network_number=network_number}
+                    }; slider.style.width = 103
+                    if network.systems == "left" then slider.enabled = false; v = "OFF" end
+                    local value_frame = content_right_vars.add{type="frame", name="rf-"..name.."-value-frame", style="slot_button_deep_frame"}
+                    local value = value_frame.add{type="label", name="rf-"..name.."-value", caption=((v or "OFF").."%"):sub(1,3)}
+                        value.style.width = 30
+                        value.style.horizontal_align = "center"
+                    network.guis.sliders[player_index][gui_id][name] = slider
+                else
+                    paddingh(content_right_vars, 0)
+                    paddingh(content_right_vars, pad_slider)
+                end
+            end
+
+            padding(content_sections.right, 5)
+
+            local content_right_stats = content_sections.right.add{type="table", name="table-"..prefix:lower().."-stats", column_count=4}
+                content_right_stats.style.top_cell_padding = 3
+                content_right_stats.style.bottom_cell_padding = 3
+            network.guis.bars[player_index][gui_id][prefix:lower()] = slider_progressbar{
+                id=network_number, element=content_right_stats,
+                name=prefix:lower(), key=prefix.." in plasma", suffix="%",
+                padleft=pad_progressbar, type="progressbar",
+                style="statistics_progressbar", slider_size=99,
+                value_size=60, id_is_network_number=true
+            }
+
+            padding(content_sections.right, 5)
+            line(content_sections.right)
+        end
+
+        gas_section("Deuterium", 0)
+        --gas_section("Deuterium", 0, {0,30}, 133)
+        gas_section("Tritium", 20)
+        gas_section("Helium-3", 7)
+        --gas_section("Helium-3", 7, {30,0}, 133)
+        gas_section("Helium-4", 7)
+
+        --[[network.guis.bars[event.player_index][gui_id]["lithium-stored"] = slider_progressbar(un, content_sections.right.add{type="flow", name="table-stats-right-lithium"},
+            "lithium-stored", "Lithium stored in reactor", "u",
+            1, nil, nil, "progressbar", nil,
+            "statistics_progressbar", 5, 78, 58
+        )
+
+        padding(content_sections.right)
+        line(content_sections.right)
+
+        local type_label_flow = content_sections.right.add{type="flow"}
+        local type_flow = content_sections.right.add{type="flow"}
+        
+        paddingh(type_label_flow)
+        local label = type_label_flow.add{type="label", caption="Fusion type"}; label.style.font = "default-large"
+        paddingh(type_label_flow)
+        local label = type_label_flow.add{type="label", caption="Controller type"}; label.style.font = "default-large"
+        paddingh(type_label_flow)
+
+        paddingh(type_flow, 32)
+        local recipe = type_flow.add{type="choose-elem-button", name="reactor-recipe", elem_type="recipe", tags={unit_number=un}, elem_filters={
+            {filter = "has-ingredient-fluid", elem_filters = {
+                {filter = "name", name = "rf-deuterium-plasma"},
+                {filter = "name", name = "rf-d-t-plasma"},
+            }}
+        }}
+        recipe.style.size = 64
+
+        paddingh(type_flow, 64)
+        local controller = type_flow.add{type="choose-elem-button", name="controller-tech", elem_type="recipe", tags={unit_number=un}, elem_filters={
+            {filter = "has-ingredient-fluid", elem_filters = {
+                {filter = "name", name = "rf-deuterium-plasma"},
+                {filter = "name", name = "rf-d-t-plasma"},
+            }}
+        }}
+        controller.style.size = 64
+
+        network.guis.choice_elems[event.player_index][gui_id]["reactor-recipe"] = recipe
+        network.guis.choice_elems[event.player_index][gui_id]["controller-tech"] = controller]]
+        -- #endregion --
+
+        -- #region CENTER --
+        local wall_integrity = content_sections.center.add{type="flow", name="table-stats-right-wall-integrity"}
+        paddingh(wall_integrity)
+        --network.guis.bars[event.player_index][gui_id]["wall-integrity"] = slider_progressbar(un, wall_integrity,
+        --    "wall-integrity", "Wall integrity", nil, nil, nil, "progressbar",
+        --    "electric_satisfaction_progressbar",5, 82, 0
+        --)
+        local slider = wall_integrity.add{type="progressbar", name="rf-wall-integrity", style="electric_satisfaction_progressbar",
+            value=network.wall_integrity,tags={network_number=network_number}, maximum_value=100, caption="INTERNAL REACTOR WALL INTEGRITY"
+        };
+            slider.style.width = 400;
+            slider.style.height = 18
+            --slider.style.top_margin = 5
+            slider.style.bar_width = 18
+            slider.style.horizontal_align = "center"
+            slider.style.font = "default-small-semibold"
+        network.guis.bars[player_index][gui_id]["wall-integrity"] = slider
+        paddingh(wall_integrity)
+
+        network.guis.sprites[player_index][gui_id] = content_sections.center.add{
+            type="sprite",
+            name="rf-m-reactor-sprite",
+            resize_to_sprite=false,
+            tags={network_number=network_number},
+            --sprite = "rf-gui-plasma-sprite-1"
+        };
+        network.guis.sprites[player_index][gui_id].style.left_padding = 10
+        network.guis.sprites[player_index][gui_id].style.width = 400
+        network.guis.sprites[player_index][gui_id].style.height = 343
+        -- #endregion --
+
+        player.opened = w
+    end
+end
+---------------- #endregion ----------------
+
+
+---------------- #region HEATER GUI ----------------
+function rfpower.heater_gui(player_index, unit_number)
+    local player = game.get_player(player_index)
+    if player.gui.screen[rfpower.gui_window_name.."-heater-"..unit_number] then player.opened = nil else
+        local network = global.networks[global.entities[unit_number]]
+
+        -- WINDOW --
+        local w,content_flow,gui_id = window(player, {350, 130}, "Plasma heater control", "vertical", unit_number, "-heater-"..unit_number);
+
+        -- #region OVERRIDE SWITCH --
+        local switch_flow = content_flow.add{type="flow", name="rf-heater-override-flow", direction="horizontal"}
+        switch_flow.add{type="label", name="rf-heater-override-label", caption="Override reactor controls?"}
+        paddingh(switch_flow)
+
+        local enabled = (network.systems == "right" and network.heating == "right")
+        local state = "left"
+        if enabled and network.heater_override[unit_number] == "right" then state="right" end
+
+        network.heater_override[unit_number] = network.heater_override[unit_number] or 0
+        network.guis.switches[player_index][gui_id]["heater-override-"..unit_number] = switch_flow.add{type="switch", name="rf-heater-override-"..unit_number,
+            style = "rf_reactor_control_switch", left_label_caption="OFF", right_label_caption="ON",
+            tags={unit_number=unit_number}, switch_state=state, enabled=enabled
+        }
+        -- #endregion --
+
+        padding(content_flow, 5)
+
+        -- #region OVERRIDE SLIDER --
+        local slider_flow = content_flow.add{type="flow", name="rf-heater-override-slider-flow", direction="horizontal"}
+
+        network.heater_override_slider[unit_number] = network.heater_override_slider[unit_number] or 0
+        network.guis.sliders[player_index][gui_id]["heater-override-slider-"..unit_number] = slider_progressbar{
+            id=unit_number, element=slider_flow, name="heater-override-slider-"..unit_number, key="Plasma heating", suffix="%",
+            padleft=-1, value=network.heater_override_slider[unit_number], enabled=(state == "right")
+        }
+        -- #endregion --
+
+        player.opened = w
+    end
+end
+---------------- #endregion ----------------
 
 ---------------- #region HEATING LIST GUI IN REACTOR ----------------
 
-function rfpower.heater_list_gui(network, player_index, unit_number)
+function rfpower.heater_list_gui(network, player_index, network_number)
+    local player = game.get_player(player_index)
+    if player.gui.screen[rfpower.gui_window_name.."-heater-list-"..network_number] then return end
+
     for _,v in pairs(game.players[player_index].gui.screen.children_names) do
         if v == rfpower.gui_window_name.."-heater-list" then return end
     end
-
-    local player = game.get_player(player_index)
 
     local size = {330, 440}
     local scrollable = true
@@ -469,7 +575,9 @@ function rfpower.heater_list_gui(network, player_index, unit_number)
 
     local w,content_flow,gui_id = window(
         player, size, "Heater overview", "vertical",
-        unit_number, "-heater-list-"..unit_number, true, scrollable);
+        network_number, "-heater-list-"..network_number, true, scrollable,
+        nil, true
+    );
 
     if tsh == 0 then
         local label = content_flow.add{type="label", caption="No heaters in network"}
@@ -492,14 +600,14 @@ function rfpower.heater_list_gui(network, player_index, unit_number)
         local enabled = (network.systems == "right" and network.heating == "right")
         local state = (enabled and network.heater_override[un] == "right")
 
-        local checkbox = heater_flow.add{type="checkbox", name="rf-heater-override", state=state, tooltip="Override reactor setting?", tags={unit_number=un}, enabled=enabled}
+        local checkbox = heater_flow.add{type="checkbox", name="rf-heater-override-"..un, state=state, tooltip="Override reactor setting?", tags={unit_number=un}, enabled=enabled}
               checkbox.style.top_margin = 4
               checkbox.style.horizontal_align = "right"
-        network.guis.checkboxes[player_index][gui_id]["rf-heater-override"] = checkbox
+        network.guis.checkboxes[player_index][gui_id]["rf-heater-override-"..un] = checkbox
 
         network.heater_override_slider[un] = network.heater_override_slider[un] or 0
-        network.guis.sliders[player_index][gui_id]["heater-override-slider"] = slider_progressbar{
-            unit_number=un, element=heater_flow, name="heater-override-slider", suffix="%",
+        network.guis.sliders[player_index][gui_id]["heater-override-slider-"..un] = slider_progressbar{
+            id=un, element=heater_flow, name="heater-override-slider-"..un, suffix="%",
             padleft=-1,value=network.heater_override_slider[un], enabled=state
         }
     end end

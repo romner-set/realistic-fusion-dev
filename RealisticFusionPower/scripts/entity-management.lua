@@ -119,10 +119,13 @@ function rfpower.new_network(entities)
 
         deuterium_input = 0,
         deuterium_removal = 0,
+        deuterium_usage = 0,
         tritium_input = 0,
         tritium_removal = 0,
+        tritium_usage = 0,
         helium_3_input = 0,
         helium_3_removal = 0,
+        helium_3_usage = 0,
         helium_4_input = 0,
         helium_4_removal = 0,
 
@@ -271,9 +274,10 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
                                 global.networks[first].heater_override_slider[un] = global.networks[first].plasma_heating
                                 rfpower.update_heater_power(global.networks[first])
 
+                                local slider_name = "rf-heater-override-slider-"..un
                                 for _,sliders in pairs(global.networks[first].guis.sliders) do
                                     for _name,slider in pairs(sliders) do
-                                        if slider.name == "rf-heater-override-slider" then
+                                        if slider.name == slider_name then
                                             slider.slider_value = global.networks[first].plasma_heating
                                             slider.parent["rf-".._name.."-value-frame"]["rf-".._name.."-value"].caption = string.sub(global.networks[first].plasma_heating.."%", 1,3)
                                         end
@@ -287,8 +291,9 @@ script.on_event({defines.events.script_raised_built, defines.events.on_robot_bui
                             ..table_size(global.networks[first].heaters).." heaters at "..global.networks[first].heater_power/1e6 .. "MW ("
                             ..global.networks[first].heater_power/rfpower.const.heater_capacity*100 .."%))"
                         )
-                    
+
                         global.networks[network_id] = nil
+                        global.networks_len = global.networks_len-1
 
                         ::continue::
                     end
@@ -368,6 +373,7 @@ script.on_event({
                 local network_id = global.entities[un]
 
                 global.networks[network_id][event.entity.name:sub(6).."s"][un] = nil
+                global.networks_len = global.networks_len-1
                 global.entities[un] = nil
 
                 if event.entity.name == "rf-m-heater" then
@@ -385,6 +391,7 @@ script.on_event({
                 --print_log(serpent.line(global.networks[network_id].heaters))
                 if table_size(global.networks[network_id].reactors) == 0 and table_size(global.networks[network_id].heaters) == 0 then --delete network
                     global.networks[network_id] = nil
+                    global.networks_len = global.networks_len-1
                     print_log("deleted network #"..network_id)
                 end
             end
@@ -421,8 +428,9 @@ script.on_event({
                         ..global.networks[network_id].heater_power/rfpower.const.heater_capacity*100 .."%))"
                     )
                 end
-                
+
                 global.networks[network_id] = nil
+                global.networks_len = global.networks_len-1
                 print_log("deleted network #"..network_id)
             end
             -- #endregion -

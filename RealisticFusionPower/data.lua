@@ -10,6 +10,7 @@ require("prototypes.fluids")
 require("prototypes.categories")
 require("prototypes.recipes.items")
 require("prototypes.recipes.recipes")
+require("prototypes.shortcuts")
 --TODO require("prototypes.technology.technology")
 --TODO require("prototypes.technology.fusion-efficiency")
 -- #endregion --
