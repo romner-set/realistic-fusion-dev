@@ -1,6 +1,6 @@
 <h1 align="center">Realistic Fusion 2.0</h1>
 
-<h4 align="center">Repository for the WIP Realistic Fusion mod series for Factorio.
+<h4 align="center">Archive repository for the WIP Realistic Fusion mod series for Factorio, see <a href=https://mods.factorio.com/mod/RealisticFusionPower/discussion/671ba901fcb6c30f0f6b2762>the deprecation notice</a>.
 <p align="center">
 <a href="#finished-features">Finished features</a> ◈
 <a href="#plannedwip-features">Planned/WIP features</a> ◈
